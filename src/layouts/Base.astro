@@ -60,12 +60,13 @@ const iframeSrc = widgetSrc(latest?.key)
   <!-- NAV — fijo en la parte superior -->
   <Navbar />
 
-  <!-- IFRAME de Mixcloud — oculto, se controla desde PlayerBar -->
+  <!-- IFRAME de Mixcloud — fuera de la vista, se controla desde PlayerBar -->
   <iframe
     id="mc-widget"
     src={iframeSrc}
-    allow="autoplay"
-    class="hidden"
+    allow="autoplay *"
+    sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
+    style="width:0;height:0;position:absolute;left:-9999px"
     aria-hidden="true"
   ></iframe>
 

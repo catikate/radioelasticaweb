@@ -24,15 +24,20 @@ export async function initWidget(): Promise<WidgetPlayer> {
   const iframe = document.getElementById('mc-widget') as HTMLIFrameElement
   if (!iframe) throw new Error('[Widget] mc-widget iframe not found')
 
+  console.log('[Widget] iframe found, src:', iframe.src)
+  console.log('[Widget] Mixcloud API available:', !!window.Mixcloud)
+
   _widget = window.Mixcloud.PlayerWidget(iframe)
+  console.log('[Widget] waiting for ready...')
   await _widget.ready
+  console.log('[Widget] ready!')
   _ready = true
 
   // Conectar eventos al store
-  _widget.events.play.on(()  => $playerStatus.set('playing'))
-  _widget.events.pause.on(() => $playerStatus.set('paused'))
-  _widget.events.ended.on(() => $playerStatus.set('ended'))
-  _widget.events.error.on(() => $playerStatus.set('idle'))
+  _widget.events.play.on(()  => { console.log('[Widget] event: play'); $playerStatus.set('playing') })
+  _widget.events.pause.on(() => { console.log('[Widget] event: pause'); $playerStatus.set('paused') })
+  _widget.events.ended.on(() => { console.log('[Widget] event: ended'); $playerStatus.set('ended') })
+  _widget.events.error.on((e: unknown) => { console.error('[Widget] event: error', e); $playerStatus.set('idle') })
   _widget.events.progress.on((pos: number, dur: number) => {
     $progress.set(dur > 0 ? pos / dur : 0)
   })
@@ -45,11 +50,15 @@ export async function initWidget(): Promise<WidgetPlayer> {
  * Acepta cualquier Mixcloud key.
  */
 export async function playTrack(track: PlayerTrack): Promise<void> {
+  console.log('[Widget] playTrack called:', track.key)
   $playerStatus.set('loading')
   $currentTrack.set(track)
 
   const widget = await initWidget()
-  await widget.load(decodeURIComponent(track.key), true)
+  const key = decodeURIComponent(track.key)
+  console.log('[Widget] loading key:', key)
+  await widget.load(key, true)
+  console.log('[Widget] load complete')
 }
 
 /**
