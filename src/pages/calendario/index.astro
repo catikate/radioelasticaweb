@@ -1,0 +1,97 @@
+---
+import Base from '@/layouts/Base.astro'
+import { getCalendar, groupByDate, formatFecha, isPast, isNow } from '@/lib/calendar'
+
+const slots    = await getCalendar()
+const byDate   = groupByDate(slots)
+const dates    = Object.keys(byDate)
+---
+
+<Base title="Calendario">
+
+  <section class="px-4 sm:px-6 py-10 sm:py-12 max-w-3xl mx-auto">
+
+    <h1 class="text-xs sm:text-sm font-bold uppercase tracking-widest text-white/50 mb-8 sm:mb-10">
+      Calendario
+    </h1>
+
+    {dates.length === 0 ? (
+
+      <div class="flex flex-col items-center justify-center py-20 sm:py-24 text-center">
+        <p class="text-white/30 text-sm sm:text-base uppercase tracking-widest mb-3">
+          Sin programación publicada
+        </p>
+        <p class="text-white/20 text-xs sm:text-sm">Vuelve pronto</p>
+      </div>
+
+    ) : (
+
+      <div class="flex flex-col gap-8 sm:gap-12">
+        {dates.map(fecha => (
+          <div>
+
+            <p class="text-xs sm:text-sm font-bold uppercase tracking-widest text-white/40 mb-3 sm:mb-4 capitalize">
+              {formatFecha(fecha)}
+            </p>
+
+            <div class="flex flex-col gap-2 sm:gap-3">
+              {byDate[fecha].map(slot => {
+                const live = isNow(slot.fecha, slot.inicio, slot.fin)
+                const past = isPast(slot.fecha, slot.fin)
+
+                return (
+                  <div class:list={[
+                    'flex items-center gap-3 sm:gap-5 px-4 sm:px-6 py-3.5 sm:py-5 rounded-xl sm:rounded-2xl border transition-colors',
+                    live ? 'bg-white/10 border-white/30' :
+                    past ? 'bg-white/[0.03] border-white/5 opacity-50' :
+                           'bg-white/5 border-white/10'
+                  ]}>
+
+                    <div class="flex-shrink-0 text-center w-16 sm:w-24">
+                      <p class:list={['text-sm sm:text-lg font-bold', live ? 'text-white' : 'text-white/60']}>
+                        {slot.inicio}
+                      </p>
+                      <p class="text-xs sm:text-sm text-white/30">{slot.fin}</p>
+                    </div>
+
+                    <div class:list={['w-px h-8 sm:h-10 flex-shrink-0', live ? 'bg-white/30' : 'bg-white/10']} />
+
+                    <div class="flex-1 min-w-0">
+                      <p class:list={[
+                        'text-sm sm:text-base font-semibold truncate',
+                        live ? 'text-white' : past ? 'text-white/40' : 'text-white/80'
+                      ]}>
+                        {slot.programa}
+                        {slot.residente && slot.residente !== 'Varios' && (
+                          <span class="font-normal"> w/ {slot.residente}</span>
+                        )}
+                      </p>
+                      {slot.notas && (
+                        <p class="text-xs sm:text-sm text-white/30 mt-0.5 sm:mt-1 truncate">{slot.notas}</p>
+                      )}
+                    </div>
+
+                    {live && (
+                      <span class="flex-shrink-0 inline-flex items-center gap-1.5 sm:gap-2
+                                   text-[10px] sm:text-xs font-bold uppercase tracking-wider
+                                   text-white bg-white/15 border border-white/30
+                                   px-2 sm:px-3 py-1 sm:py-1.5 rounded-full">
+                        <span class="w-1.5 sm:w-2 h-1.5 sm:h-2 rounded-full bg-white animate-pulse" />
+                        En vivo
+                      </span>
+                    )}
+
+                  </div>
+                )
+              })}
+            </div>
+
+          </div>
+        ))}
+      </div>
+
+    )}
+
+  </section>
+
+</Base>
