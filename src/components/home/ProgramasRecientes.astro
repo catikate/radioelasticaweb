@@ -1,0 +1,53 @@
+---
+import type { Cloudcast } from '@/lib/types'
+import { formatDuration, formatDate } from '@/lib/mixcloud'
+
+interface Props {
+  programas: Cloudcast[]
+}
+const { programas } = Astro.props
+---
+
+{programas.length === 0 ? (
+  <p class="text-white/30 text-sm text-center py-8">
+    Próximamente los primeros programas.
+  </p>
+) : (
+  <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
+    {programas.map(p => (
+      <a
+        href={`/programas/${p.slug}`}
+        class="group bg-white/5 border border-white/10 rounded-xl
+               overflow-hidden hover:border-white/30 transition-colors"
+      >
+        {/* Portada */}
+        <div class="aspect-square bg-re-blue/50 overflow-hidden">
+          <img
+            src={p.pictures['320wx320h']}
+            alt={p.name}
+            class="w-full h-full object-cover opacity-90
+                   group-hover:opacity-100 transition-opacity"
+            loading="lazy"
+          />
+        </div>
+
+        {/* Info */}
+        <div class="p-3">
+          <p class="text-sm font-semibold text-white leading-snug line-clamp-2 mb-1">
+            {p.name}
+          </p>
+          <p class="text-xs text-white/40">
+            {formatDuration(p.audio_length)} · {formatDate(p.created_time)}
+          </p>
+          {p.tags.length > 0 && (
+            <span class="inline-block mt-2 text-[10px] font-bold uppercase
+                         tracking-wider text-re-blue bg-re-blue/10
+                         px-2 py-0.5 rounded">
+              {p.tags[0].name.replace('residente-', '')}
+            </span>
+          )}
+        </div>
+      </a>
+    ))}
+  </div>
+)}

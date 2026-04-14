@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.astro/
+.netlify/
+.env
+.env.*
+!.env.example
+
+# Archivos sueltos que no son parte del proyecto
+*.zip
+*.docx
+Fondo azul.JPG

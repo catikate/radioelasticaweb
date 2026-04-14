@@ -1,0 +1,72 @@
+---
+import '../styles/global.css'
+import Navbar    from '@/components/layout/Navbar.astro'
+import PlayerBar from '@/components/player/PlayerBar'
+
+interface Props {
+  title?:       string
+  description?: string
+  ogImage?:     string
+}
+
+const {
+  title       = 'Radio Elástica',
+  description = 'Emisora online independiente desde Barcelona. Miércoles 11:11.',
+  ogImage     = '/assets/logo-square.jpg',
+} = Astro.props
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site)
+---
+
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/jpeg" href="/assets/logo-square.jpg" />
+  <link rel="canonical" href={canonicalURL} />
+
+  <title>{title === 'Radio Elástica' ? title : `${title} — Radio Elástica`}</title>
+  <meta name="description" content={description} />
+
+  <!-- Open Graph -->
+  <meta property="og:type"        content="website" />
+  <meta property="og:url"         content={canonicalURL} />
+  <meta property="og:title"       content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:image"       content={ogImage} />
+
+  <!-- Twitter -->
+  <meta name="twitter:card"        content="summary_large_image" />
+  <meta name="twitter:title"       content={title} />
+  <meta name="twitter:description" content={description} />
+  <meta name="twitter:image"       content={ogImage} />
+
+  <!-- Mixcloud Widget API — se carga una sola vez aquí -->
+  <script src="https://widget.mixcloud.com/media/js/widgetApi.js" is:inline></script>
+</head>
+
+<body class="bg-re-blue text-white">
+
+  <!-- NAV — fijo en la parte superior -->
+  <Navbar />
+
+  <!-- IFRAME de Mixcloud — oculto, se controla desde PlayerBar -->
+  <iframe
+    id="mc-widget"
+    src="https://www.mixcloud.com/widget/iframe/?hide_cover=1&mini=1&autoplay=0"
+    allow="autoplay"
+    class="hidden"
+    aria-hidden="true"
+  ></iframe>
+
+  <!-- CONTENIDO — zona con scroll entre nav y reproductor -->
+  <main id="content" class="no-scrollbar">
+    <slot />
+  </main>
+
+  <!-- REPRODUCTOR — fijo en la parte inferior -->
+  <PlayerBar client:load />
+
+</body>
+</html>
