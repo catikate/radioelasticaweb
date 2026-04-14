@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Radio Elástica — Actualizar web</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #3B6FFF;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 40px 32px;
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+    }
+    h1 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #111;
+      margin-bottom: 8px;
+    }
+    p {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 28px;
+      line-height: 1.6;
+    }
+    button {
+      background: #3B6FFF;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 14px 28px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      transition: opacity 0.2s;
+    }
+    button:hover { opacity: 0.85; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .status {
+      margin-top: 16px;
+      font-size: 13px;
+      color: #666;
+      min-height: 20px;
+    }
+    .status.ok  { color: #16a34a; }
+    .status.err { color: #dc2626; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Radio Elástica</h1>
+    <p>Usa este botón después de actualizar el calendario en Google Sheets para que los cambios aparezcan en la web.</p>
+    <button id="btn" onclick="deploy()">Actualizar web</button>
+    <p class="status" id="status"></p>
+  </div>
+
+  <script>
+    async function deploy() {
+      const btn    = document.getElementById('btn')
+      const status = document.getElementById('status')
+
+      btn.disabled = true
+      btn.textContent = 'Actualizando...'
+      status.className = 'status'
+      status.textContent = 'Enviando señal a Netlify...'
+
+      try {
+        await fetch('https://api.netlify.com/build_hooks/69dec65ebb64986fcb9704ac', {
+          method: 'POST',
+        })
+        status.className = 'status ok'
+        status.textContent = '✓ Listo. La web se actualiza en ~1 minuto.'
+        btn.textContent = 'Actualizar web'
+        btn.disabled = false
+      } catch (e) {
+        status.className = 'status err'
+        status.textContent = 'Error. Comprueba la conexión e inténtalo de nuevo.'
+        btn.textContent = 'Actualizar web'
+        btn.disabled = false
+      }
+    }
+  </script>
+</body>
+</html>
