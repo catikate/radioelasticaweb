@@ -5,14 +5,22 @@
 import { EMISSION } from './constants'
 import type { EmisionState } from './types'
 
+// Primera emisión: miércoles 22 de abril de 2026, 11:11
+const FIRST_EMISSION = new Date('2026-04-22T11:11:00')
+
 /**
  * Devuelve el estado actual de la emisión.
  * 'live'    → miércoles 11:11–13:13
  * 'soon'    → miércoles antes de las 11:11
  * 'offline' → resto de la semana
+ *
+ * Antes de la primera emisión siempre devuelve 'offline'.
  */
 export function getEmisionState(): EmisionState {
   const now  = new Date()
+
+  if (now < FIRST_EMISSION) return 'offline'
+
   const day  = now.getDay()
   const mins = now.getHours() * 60 + now.getMinutes()
 
@@ -60,11 +68,20 @@ export function formatCountdown(totalMins: number): string {
 }
 
 /**
- * Fecha del próximo miércoles en formato legible.
- * Ej: "miércoles 16 de abril"
+ * Fecha del próximo miércoles de emisión en formato legible.
+ * Antes de la primera emisión devuelve "miércoles 22 de abril".
  */
 export function nextEmisionDate(): string {
-  const now  = new Date()
+  const now = new Date()
+
+  if (now < FIRST_EMISSION) {
+    return FIRST_EMISSION.toLocaleDateString('es-ES', {
+      weekday: 'long',
+      day:     'numeric',
+      month:   'long',
+    })
+  }
+
   const days = (EMISSION.DAY - now.getDay() + 7) % 7 || 7
   const next = new Date(now)
   next.setDate(now.getDate() + days)
