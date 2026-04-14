@@ -2,6 +2,8 @@
 import '../styles/global.css'
 import Navbar    from '@/components/layout/Navbar.astro'
 import PlayerBar from '@/components/player/PlayerBar'
+import { getLatestCloudcast } from '@/lib/mixcloud'
+import { widgetSrc } from '@/lib/mixcloud'
 
 interface Props {
   title?:       string
@@ -16,6 +18,8 @@ const {
 } = Astro.props
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://radioelastica.com')
+const latest = await getLatestCloudcast()
+const iframeSrc = widgetSrc(latest?.key)
 ---
 
 <!doctype html>
@@ -59,7 +63,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://radioela
   <!-- IFRAME de Mixcloud — oculto, se controla desde PlayerBar -->
   <iframe
     id="mc-widget"
-    src="https://www.mixcloud.com/widget/iframe/?hide_cover=1&mini=1&autoplay=0"
+    src={iframeSrc}
     allow="autoplay"
     class="hidden"
     aria-hidden="true"
