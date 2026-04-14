@@ -153,7 +153,8 @@ export function widgetSrc(key?: string): string {
     mini:       '1',
     autoplay:   '0',
   })
-  if (key) params.set('feed', key)
+  // Decodificar la key para evitar doble encoding por URLSearchParams
+  if (key) params.set('feed', decodeURIComponent(key))
   return `${base}?${params}`
 }
 

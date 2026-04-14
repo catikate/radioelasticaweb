@@ -49,7 +49,7 @@ export async function playTrack(track: PlayerTrack): Promise<void> {
   $currentTrack.set(track)
 
   const widget = await initWidget()
-  await widget.load(track.key, true)
+  await widget.load(decodeURIComponent(track.key), true)
 }
 
 /**
