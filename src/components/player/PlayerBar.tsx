@@ -7,7 +7,7 @@ import {
   $isLive,
 } from '@/lib/store'
 import { getEmisionState, minsUntilNext, formatCountdown, nextEmisionDate } from '@/lib/schedule'
-import { initWidget, togglePlay, loadLatest } from '@/lib/widget'
+import { initWidget, togglePlay } from '@/lib/widget'
 import { PLAYER_COPY } from '@/lib/constants'
 
 export default function PlayerBar() {
@@ -17,11 +17,9 @@ export default function PlayerBar() {
   const isLive  = useStore($isLive)
   const emission = getEmisionState()
 
-  // Inicializar el widget y cargar el último episodio
+  // Inicializar el widget una sola vez al montar
   useEffect(() => {
-    initWidget()
-      .then(() => loadLatest())
-      .catch(console.error)
+    initWidget().catch(console.error)
   }, [])
 
   const isPlaying = status === 'playing'
@@ -93,7 +91,7 @@ export default function PlayerBar() {
       {/* Botón play/pause */}
       <button
         onClick={togglePlay}
-        disabled={isLoading || !track}
+        disabled={isLoading || (!track && emission !== 'live')}
         aria-label={isPlaying ? 'Pausar' : 'Reproducir'}
         class="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center
                transition-opacity disabled:opacity-30

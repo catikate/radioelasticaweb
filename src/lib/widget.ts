@@ -4,13 +4,12 @@
 // Nunca destruyas ni recrees el iframe.
 // ============================================================
 
-import type { WidgetPlayer, PlayerTrack, MixcloudResponse, Cloudcast } from './types'
+import type { WidgetPlayer, PlayerTrack } from './types'
 import {
   $currentTrack,
   $playerStatus,
   $progress,
 } from './store'
-import { MIXCLOUD_BASE, MIXCLOUD_USER } from './constants'
 
 let _widget: WidgetPlayer | null = null
 let _ready = false
@@ -54,35 +53,7 @@ export async function playTrack(track: PlayerTrack): Promise<void> {
 }
 
 /**
- * Busca el último episodio de Mixcloud y actualiza el store con su info.
- * No carga en el widget todavía — eso pasa al darle play.
- */
-export async function loadLatest(): Promise<void> {
-  if ($currentTrack.get()) return
-
-  try {
-    const res = await fetch(`${MIXCLOUD_BASE}/${MIXCLOUD_USER}/cloudcasts/?limit=1&order=latest`)
-    if (!res.ok) return
-    const json = await res.json() as MixcloudResponse<Cloudcast>
-    const latest = json.data?.[0]
-    if (!latest) return
-
-    $currentTrack.set({
-      key:      latest.key,
-      title:    latest.name,
-      dj:       latest.user.name,
-      cover:    latest.pictures?.large ?? latest.pictures?.medium ?? '/assets/logo-square.jpg',
-      duration: latest.audio_length,
-      isLive:   false,
-    })
-  } catch (err) {
-    console.error('[Widget] loadLatest failed:', err)
-  }
-}
-
-/**
  * Pausa o reanuda según el estado actual.
- * Si no hay nada cargado en el widget, carga el track actual con autoplay.
  */
 export async function togglePlay(): Promise<void> {
   const widget = await initWidget()
@@ -90,13 +61,6 @@ export async function togglePlay(): Promise<void> {
 
   if (status === 'playing') {
     widget.pause()
-  } else if (status === 'idle' || status === 'ended') {
-    // Primera vez o terminó: cargar el track en el widget con autoplay
-    const track = $currentTrack.get()
-    if (track) {
-      $playerStatus.set('loading')
-      await widget.load(track.key, true)
-    }
   } else {
     widget.play()
   }
