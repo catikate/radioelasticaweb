@@ -4,12 +4,13 @@
 // Nunca destruyas ni recrees el iframe.
 // ============================================================
 
-import type { WidgetPlayer, PlayerTrack } from './types'
+import type { WidgetPlayer, PlayerTrack, MixcloudResponse, Cloudcast } from './types'
 import {
   $currentTrack,
   $playerStatus,
   $progress,
 } from './store'
+import { MIXCLOUD_BASE, MIXCLOUD_USER } from './constants'
 
 let _widget: WidgetPlayer | null = null
 let _ready = false
@@ -50,6 +51,39 @@ export async function playTrack(track: PlayerTrack): Promise<void> {
 
   const widget = await initWidget()
   await widget.load(track.key, true)
+}
+
+/**
+ * Busca el último episodio de Mixcloud y lo carga en el widget sin autoplay.
+ * Así el reproductor siempre tiene algo listo para darle al play.
+ */
+export async function loadLatest(): Promise<void> {
+  // Si ya hay un track cargado, no hacer nada
+  if ($currentTrack.get()) return
+
+  try {
+    const res = await fetch(`${MIXCLOUD_BASE}/${MIXCLOUD_USER}/cloudcasts/?limit=1&order=latest`)
+    if (!res.ok) return
+    const json = await res.json() as MixcloudResponse<Cloudcast>
+    const latest = json.data?.[0]
+    if (!latest) return
+
+    const track: PlayerTrack = {
+      key:      latest.key,
+      title:    latest.name,
+      dj:       latest.user.name,
+      cover:    latest.pictures?.large ?? latest.pictures?.medium ?? '/assets/logo-square.jpg',
+      duration: latest.audio_length,
+      isLive:   false,
+    }
+
+    $currentTrack.set(track)
+
+    const widget = await initWidget()
+    await widget.load(track.key, false)
+  } catch (err) {
+    console.error('[Widget] loadLatest failed:', err)
+  }
 }
 
 /**
