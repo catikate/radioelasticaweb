@@ -14,7 +14,7 @@ export default {
         display: ['"Playfair Display"', 'Georgia', 'serif'],
       },
       height: {
-        nav:    '64px',
+        nav:    '96px',
         player: '72px',
       },
     },

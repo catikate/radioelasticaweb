@@ -11,8 +11,8 @@
 
   /* Zona de contenido scrolleable entre nav y reproductor */
   #content {
-    height: calc(100vh - 64px - 72px); /* 100vh - nav - player */
-    margin-top: 64px;
+    height: calc(100vh - 136px - 72px); /* 100vh - nav - player */
+    margin-top: 136px;
     margin-bottom: 72px;
     overflow-y: auto;
     overflow-x: hidden;

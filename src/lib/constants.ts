@@ -219,6 +219,6 @@ export function toSlug(name: string): string {
 // ------------------------------------------------------------
 
 export const LAYOUT = {
-  navHeight:    64,
+  navHeight:    96,
   playerHeight: 72,
 } as const

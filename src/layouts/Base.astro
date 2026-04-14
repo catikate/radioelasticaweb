@@ -70,8 +70,53 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site)
     <slot />
   </main>
 
+  <!-- BOTÓN HOME FLOTANTE — solo fuera de la home -->
+  <a
+    id="home-fab"
+    href="/"
+    class="fixed z-50 bottom-[92px] right-5
+           w-12 h-12 rounded-full bg-white/10 border border-white/20
+           flex items-center justify-center
+           hover:bg-white/20 transition-colors
+           hidden"
+    aria-label="Volver al inicio"
+  >
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M15 10H5"/>
+      <path d="M10 5l-5 5 5 5"/>
+    </svg>
+  </a>
+
   <!-- REPRODUCTOR — fijo en la parte inferior -->
   <PlayerBar client:load />
+
+  <!-- Swipe derecha para volver a home (móvil) + mostrar/ocultar FAB -->
+  <script is:inline>
+    (function() {
+      // Mostrar FAB solo fuera de la home
+      var fab = document.getElementById('home-fab');
+      if (fab && window.location.pathname !== '/') {
+        fab.classList.remove('hidden');
+      }
+
+      // Swipe right → home
+      var startX = 0;
+      var startY = 0;
+      document.addEventListener('touchstart', function(e) {
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+      }, { passive: true });
+
+      document.addEventListener('touchend', function(e) {
+        var dx = e.changedTouches[0].clientX - startX;
+        var dy = Math.abs(e.changedTouches[0].clientY - startY);
+        // Swipe horizontal > 100px, no mucho vertical, empieza desde el borde izquierdo
+        if (dx > 100 && dy < 80 && startX < 40 && window.location.pathname !== '/') {
+          window.location.href = '/';
+        }
+      }, { passive: true });
+    })();
+  </script>
 
 </body>
 </html>
