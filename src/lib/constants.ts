@@ -131,7 +131,7 @@ export const PROGRAMAS = [
     tipo:        'residente' as const,
     tags:        [TAGS_RESIDENTES.draga, TAG_TEMPORADA],
     descripcion: 'El crossover entre literatura y música. Palabra hablada, análisis de lyrics, salseo. Entrevistas a artistas que han indagado este cruce. Poesía, joyas ocultas y temazos.',
-    foto:        '/assets/residentes/draga.jpg',
+    foto:        '/assets/programas/sentimientos-encontrados.jpg',
     temporada:   1,
   },
   {
@@ -142,7 +142,7 @@ export const PROGRAMAS = [
     tipo:        'residente' as const,
     tags:        [TAGS_RESIDENTES.juliKova, TAG_TEMPORADA],
     descripcion: 'En tiempos de extremismos, celebremos el eclecticismo. Un espacio sonoro para viajar por líneas de bajo hipnóticas, girls to the front, post-punk, dub, indie, pop, géneros híbridos, oldies y rarezas.',
-    foto:        '/assets/residentes/juli-kova.jpg',
+    foto:        '/assets/programas/sesiones-multipotenciales.jpg',
     temporada:   1,
   },
   {
@@ -153,7 +153,7 @@ export const PROGRAMAS = [
     tipo:        'residente' as const,
     tags:        [TAGS_RESIDENTES.catiKate, TAG_TEMPORADA],
     descripcion: 'Canciones que no suenan, aparecen. La música como duelo compartido y celebración extraña. El mapa de un presente que mira hacia atrás. Y ahí, entre los fantasmas, también se baila.',
-    foto:        '/assets/residentes/cati-kate.jpg',
+    foto:        '/assets/programas/los-fantasmas-de-mi-vida.jpg',
     temporada:   1,
   },
   {
@@ -165,7 +165,7 @@ export const PROGRAMAS = [
     // Dos tags: residente + programa — para distinguirlo de Fantasías Gráficas
     tags:        [TAGS_RESIDENTES.lafatBordieu, TAGS_PROGRAMAS.metalicoEspejado, TAG_TEMPORADA],
     descripcion: 'Musicalizado solo con CDs. Un tributo al increíble talismán tornasol y al concepto de crear discos como una experiencia. Fragmentos de álbumes, historias, curiosidades y algún que otro chisme.',
-    foto:        '/assets/residentes/lafat-bordieu.jpg',
+    foto:        '/assets/programas/metalico-espejado.jpg',
     temporada:   1,
   },
   {
@@ -176,7 +176,7 @@ export const PROGRAMAS = [
     tipo:        'residente' as const,
     tags:        [TAGS_RESIDENTES.mil919, TAG_TEMPORADA],
     descripcion: 'Un viaje poco lineal de notas de audio, shitposting narrado, canciones y sentimentalismo. De la imagen a la voz, contenido extraído de archivos de internet y lo que pasa a través de un móvil.',
-    foto:        '/assets/residentes/1919.jpg',
+    foto:        '/assets/programas/notas-de-voz.jpg',
     temporada:   1,
   },
   {
@@ -188,7 +188,7 @@ export const PROGRAMAS = [
     // Solo tag del programa — así si cambia de conductora no hay que retocar
     tags:        [TAGS_PROGRAMAS.fantasiasGraficas, TAG_TEMPORADA],
     descripcion: 'Un colectivo de amigas que fomenta el arte gráfico, el fanzine, la ilustración y la autopublicación. Con enfoque migrante, queer y experimental. Entrevistas donde cada invitadx cuenta su trabajo y la música que les inspira.',
-    foto:        '/assets/residentes/lafat-bordieu.jpg',
+    foto:        '/assets/programas/fantasias-graficas.jpg',
     temporada:   1,
   },
   {
@@ -199,7 +199,7 @@ export const PROGRAMAS = [
     tipo:        'rotativo' as const,
     tags:        [TAGS_PROGRAMAS.unaMananaElastica, TAG_TEMPORADA],
     descripcion: 'Show libre donde cada episodio tiene unx anfitrión diferente que deleita con una hora de su selección musical para amenizar la mañana. Un espacio flexible para nuestras amigas.',
-    foto:        '/assets/logo-square.jpg',
+    foto:        '/assets/programas/una-manana-elastica.jpg',
     temporada:   1,
   },
 ] as const
@@ -209,11 +209,16 @@ export function tituloPrograma(programa: string, residente: string): string {
   return `${programa} w/ ${residente}`
 }
 
+// Helper — convierte un nombre a slug URL-safe
+export function toSlug(name: string): string {
+  return name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, '-')
+}
+
 // ------------------------------------------------------------
 // Layout
 // ------------------------------------------------------------
 
 export const LAYOUT = {
-  navHeight:    48,
+  navHeight:    64,
   playerHeight: 72,
 } as const

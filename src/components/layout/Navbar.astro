@@ -14,23 +14,38 @@ const currentPath = Astro.url.pathname
 <nav
   class="fixed top-0 left-0 right-0 z-50 h-nav
          bg-re-blue border-b border-white/10
-         flex items-center justify-center gap-2 px-4"
+         flex items-center px-4 sm:px-10"
 >
-  {links.map(({ href, img, alt }) => (
-    <a
-      href={href}
-      class:list={[
-        'flex items-center justify-center h-10 px-3 rounded transition-opacity',
-        currentPath.startsWith(href)
-          ? 'opacity-100'
-          : 'opacity-50 hover:opacity-80'
-      ]}
-    >
-      <img
-        src={img}
-        alt={alt}
-        class="h-7 w-auto"
-      />
-    </a>
-  ))}
+  <!-- Logo — siempre visible, siempre lleva a home -->
+  <a href="/" class="flex-shrink-0 hover:opacity-80 transition-opacity">
+    <img
+      src={ASSETS.logoSquare}
+      alt="Radio Elástica — Inicio"
+      class="h-10 w-10 rounded-sm"
+    />
+  </a>
+
+  <!-- Botones — centrados en el espacio restante -->
+  <div class="flex-1 flex items-center justify-center gap-2">
+    {links.map(({ href, img, alt }) => (
+      <a
+        href={href}
+        class:list={[
+          'flex items-center justify-center h-12 px-4 rounded transition-opacity',
+          currentPath.startsWith(href)
+            ? 'opacity-100'
+            : 'opacity-50 hover:opacity-80'
+        ]}
+      >
+        <img
+          src={img}
+          alt={alt}
+          class="h-9 w-auto"
+        />
+      </a>
+    ))}
+  </div>
+
+  <!-- Spacer para que los botones queden centrados visualmente -->
+  <div class="w-10 flex-shrink-0"></div>
 </nav>

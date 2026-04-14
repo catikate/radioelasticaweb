@@ -1,0 +1,113 @@
+---
+import Base from '@/layouts/Base.astro'
+import { PROGRAMAS } from '@/lib/constants'
+import { getCloudcasts, formatDuration, formatDate } from '@/lib/mixcloud'
+
+export function getStaticPaths() {
+  return PROGRAMAS.map(p => ({
+    params: { slug: p.slug },
+    props:  { programa: p },
+  }))
+}
+
+const { programa } = Astro.props
+
+// Fetch episodios usando el primer tag identificador (no temporada)
+const mainTag = programa.tags.find((t: string) => t !== 'temporada-1')!
+const episodios = await getCloudcasts(undefined, { tags: mainTag, limit: 50, order: 'latest' })
+---
+
+<Base title={programa.programa}>
+
+  <section class="px-6 py-12 max-w-3xl mx-auto">
+
+    <!-- Cabecera -->
+    <div class="flex flex-col sm:flex-row items-center gap-6 mb-10">
+      <div class="bg-white p-2 pb-6 shadow-sm rotate-[-1deg] flex-shrink-0">
+        <img
+          src={programa.foto}
+          alt={programa.programa}
+          class="w-40 aspect-[3/4] object-cover"
+          onerror="this.onerror=null;this.src='/assets/logo-square.jpg'"
+        />
+      </div>
+      <div class="text-center sm:text-left">
+        <h1 class="font-display italic text-3xl text-white">
+          {programa.programa}
+        </h1>
+        <p class="text-white/60 text-sm mt-2">
+          {programa.tipo === 'residente'
+            ? `w/ ${programa.residente}`
+            : programa.residente === 'Varios'
+              ? 'Anfitrión diferente cada episodio'
+              : `Conduce: ${programa.residente}`}
+        </p>
+        <p class="text-white/40 text-sm mt-3 leading-relaxed">
+          {programa.descripcion}
+        </p>
+      </div>
+    </div>
+
+    <!-- Lista de episodios -->
+    <h2 class="font-display italic text-xl text-white mb-4">
+      ✦ Episodios
+    </h2>
+
+    {episodios.length === 0 ? (
+      <p class="text-white/40 text-sm italic">
+        Próximamente — los episodios aparecerán aquí cuando se publiquen en Mixcloud.
+      </p>
+    ) : (
+      <div class="space-y-3">
+        {episodios.map(ep => (
+          <button
+            class="w-full flex items-center gap-3 bg-white/5 border border-white/10
+                   rounded-lg p-3 text-left hover:bg-white/10 transition-colors
+                   ep-play-btn"
+            data-key={ep.key}
+            data-title={ep.name}
+            data-cover={ep.pictures?.['320wx320h'] ?? ep.pictures?.large ?? '/assets/logo-square.jpg'}
+            data-duration={String(ep.audio_length)}
+          >
+            <img
+              src={ep.pictures?.['320wx320h'] ?? ep.pictures?.large ?? '/assets/logo-square.jpg'}
+              alt={ep.name}
+              class="w-12 h-12 rounded object-cover flex-shrink-0"
+            />
+            <div class="flex-1 min-w-0">
+              <p class="text-sm text-white font-medium truncate">{ep.name}</p>
+              <p class="text-xs text-white/40 mt-0.5">
+                {formatDate(ep.created_time)} · {formatDuration(ep.audio_length)}
+              </p>
+            </div>
+            <svg class="w-5 h-5 text-white/40 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+              <path d="M6.5 3.5l10 6.5-10 6.5V3.5z"/>
+            </svg>
+          </button>
+        ))}
+      </div>
+    )}
+
+  </section>
+
+</Base>
+
+<script>
+  import { playTrack } from '@/lib/widget'
+  import type { PlayerTrack } from '@/lib/types'
+
+  document.querySelectorAll('.ep-play-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const el = btn as HTMLElement
+      const track: PlayerTrack = {
+        key:      el.dataset.key!,
+        title:    el.dataset.title!,
+        dj:       '',
+        cover:    el.dataset.cover!,
+        duration: Number(el.dataset.duration),
+        isLive:   false,
+      }
+      playTrack(track)
+    })
+  })
+</script>

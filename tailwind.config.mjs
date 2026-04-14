@@ -11,10 +11,10 @@ export default {
         },
       },
       fontFamily: {
-        serif: ['Georgia', 'Times New Roman', 'serif'],
+        display: ['"Playfair Display"', 'Georgia', 'serif'],
       },
       height: {
-        nav:    '48px',
+        nav:    '64px',
         player: '72px',
       },
     },

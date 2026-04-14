@@ -1,0 +1,59 @@
+---
+import Base from '@/layouts/Base.astro'
+import { PROGRAMAS, toSlug } from '@/lib/constants'
+
+// Agrupar programas por residente (excluir "Varios")
+const residenteMap = new Map<string, { slug: string; residente: string; programas: string[] }>()
+
+for (const p of PROGRAMAS) {
+  if (p.residente === 'Varios') continue
+  const existing = residenteMap.get(p.residente)
+  if (existing) {
+    existing.programas.push(p.programa)
+  } else {
+    residenteMap.set(p.residente, {
+      slug: toSlug(p.residente),
+      residente: p.residente,
+      programas: [p.programa],
+    })
+  }
+}
+
+const residentes = [...residenteMap.values()]
+const rotations = ['-2deg', '1.5deg', '-1deg', '2deg', '-0.5deg']
+---
+
+<Base title="Residentes">
+
+  <section class="px-6 py-12">
+
+    <h1 class="font-display italic text-3xl text-white text-center mb-12">
+      ✦ Residentes ✦
+    </h1>
+
+    <div class="flex flex-col items-center gap-16 max-w-sm mx-auto">
+      {residentes.map((r, i) => (
+        <a
+          href={`/residentes/${r.slug}`}
+          class="bg-white p-4 pb-10 shadow-sm transition-transform hover:scale-[1.02] block cursor-pointer w-full"
+          style={`transform: rotate(${rotations[i % rotations.length]})`}
+        >
+          <img
+            src={`/assets/residentes/${r.slug}.jpg`}
+            alt={r.residente}
+            class="w-full aspect-[3/4] object-cover"
+            onerror="this.onerror=null;this.src='/assets/logo-square.jpg'"
+          />
+          <p class="text-re-ink font-display italic text-center text-lg mt-4 font-bold">
+            {r.residente}
+          </p>
+          <p class="text-re-ink/60 text-center text-sm mt-1">
+            {r.programas.join(' · ')}
+          </p>
+        </a>
+      ))}
+    </div>
+
+  </section>
+
+</Base>

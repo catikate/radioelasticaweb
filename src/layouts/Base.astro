@@ -42,11 +42,16 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site)
   <meta name="twitter:description" content={description} />
   <meta name="twitter:image"       content={ogImage} />
 
+  <!-- Tipografía — Playfair Display -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
+
   <!-- Mixcloud Widget API — se carga una sola vez aquí -->
   <script src="https://widget.mixcloud.com/media/js/widgetApi.js" is:inline></script>
 </head>
 
-<body class="bg-re-blue text-white">
+<body class="bg-re-blue text-white font-display">
 
   <!-- NAV — fijo en la parte superior -->
   <Navbar />

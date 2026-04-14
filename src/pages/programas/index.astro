@@ -1,0 +1,50 @@
+---
+import Base from '@/layouts/Base.astro'
+import { PROGRAMAS } from '@/lib/constants'
+---
+
+<Base title="Programas">
+
+  <section class="px-6 py-12">
+
+    <h1 class="font-display italic text-3xl text-white text-center mb-2">
+      ✦ Programas ✦
+    </h1>
+
+    <p class="text-white/50 text-xs uppercase tracking-[0.25em] text-center mb-12">
+      Temporada 1
+    </p>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+      {PROGRAMAS.map((p) => (
+        <a href={`/programas/${p.slug}`}
+           class="bg-white/5 border border-white/10 rounded-xl overflow-hidden block
+                  hover:bg-white/10 transition-colors">
+          <img
+            src={p.foto}
+            alt={p.programa}
+            class="w-full aspect-[4/5] object-cover"
+            onerror="this.onerror=null;this.src='/assets/logo-square.jpg'"
+          />
+          <div class="p-5">
+            <h2 class="font-display italic text-lg text-white">
+              {p.programa}
+            </h2>
+            <p class="text-white/60 text-sm mt-1">
+              {p.tipo === 'residente'
+                ? `w/ ${p.residente}`
+                : p.residente === 'Varios'
+                  ? 'Anfitrión diferente cada episodio'
+                  : `Conduce: ${p.residente}`}
+            </p>
+            <p class="text-white/70 text-sm mt-3 leading-relaxed">
+              {p.descripcion}
+            </p>
+          </div>
+        </a>
+      ))}
+    </div>
+
+  </section>
+
+</Base>
