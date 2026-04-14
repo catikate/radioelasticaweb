@@ -13,7 +13,8 @@ export function getStaticPaths() {
 const { programa } = Astro.props
 
 // Fetch episodios usando el primer tag identificador (no temporada)
-const mainTag = programa.tags.find((t: string) => t !== 'temporada-1')!
+const mainTag = programa.tags.find((t: string) => t.startsWith('programa-'))
+  ?? programa.tags.find((t: string) => t !== 'temporada-1')!
 const episodios = await getCloudcasts(undefined, { tags: mainTag, limit: 50, order: 'latest' })
 ---
 
@@ -42,7 +43,7 @@ const episodios = await getCloudcasts(undefined, { tags: mainTag, limit: 50, ord
               ? 'Anfitrión diferente cada episodio'
               : `Conduce: ${programa.residente}`}
         </p>
-        <p class="text-white/50 text-xl mt-4 leading-relaxed max-w-xl mx-auto not-italic" style="font-style: normal;">
+        <p class="text-white/50 text-2xl mt-4 leading-relaxed max-w-xl mx-auto not-italic" style="font-style: normal;">
           {programa.descripcion}
         </p>
       </div>

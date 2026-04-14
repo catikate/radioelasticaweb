@@ -24,13 +24,27 @@ const { residente } = Astro.props
 const programas = PROGRAMAS.filter(p => p.residente === residente)
 
 // Fetch de episodios agrupados por programa
+// Preferir tag programa-* para no mezclar episodios de otros programas
 const programasConEpisodios = await Promise.all(
   programas.map(async (p) => {
-    const mainTag = p.tags.find((t: string) => t !== 'temporada-1')!
+    const mainTag = p.tags.find((t: string) => t.startsWith('programa-'))
+      ?? p.tags.find((t: string) => t !== 'temporada-1')!
     const episodios = await getCloudcasts(undefined, { tags: mainTag, limit: 50, order: 'latest' })
     return { ...p, episodios }
   })
 )
+
+// Buscar apariciones en programas rotativos (ej: Una Mañana Elástica)
+const residenteTag = programas
+  .flatMap(p => [...p.tags])
+  .find((t: string) => t.startsWith('residente-'))
+
+let otrasParticipaciones: Awaited<ReturnType<typeof getCloudcasts>> = []
+if (residenteTag) {
+  const allByResidente = await getCloudcasts(undefined, { tags: residenteTag, limit: 50, order: 'latest' })
+  const shownKeys = new Set(programasConEpisodios.flatMap(p => p.episodios.map(e => e.key)))
+  otrasParticipaciones = allByResidente.filter(ep => !shownKeys.has(ep.key))
+}
 
 const slug = Astro.params.slug!
 const fotoResidente = `/assets/residentes/${slug}.jpg`
@@ -112,6 +126,44 @@ const fotoResidente = `/assets/residentes/${slug}.jpg`
         )}
       </div>
     ))}
+
+    {/* Apariciones en programas rotativos */}
+    {otrasParticipaciones.length > 0 && (
+      <div class="mb-10">
+        <h2 class="font-display italic text-xl text-white mb-4">
+          ✦ Otras participaciones
+        </h2>
+
+        <div class="space-y-3">
+          {otrasParticipaciones.map(ep => (
+            <button
+              class="w-full flex items-center gap-3 bg-white/5 border border-white/10
+                     rounded-lg p-3 text-left hover:bg-white/10 transition-colors
+                     ep-play-btn"
+              data-key={ep.key}
+              data-title={ep.name}
+              data-cover={ep.pictures?.['320wx320h'] ?? ep.pictures?.large ?? '/assets/logo-square.jpg'}
+              data-duration={String(ep.audio_length)}
+            >
+              <img
+                src={ep.pictures?.['320wx320h'] ?? ep.pictures?.large ?? '/assets/logo-square.jpg'}
+                alt={ep.name}
+                class="w-12 h-12 rounded object-cover flex-shrink-0"
+              />
+              <div class="flex-1 min-w-0">
+                <p class="text-sm text-white font-medium truncate">{ep.name}</p>
+                <p class="text-xs text-white/40 mt-0.5">
+                  {formatDate(ep.created_time)} · {formatDuration(ep.audio_length)}
+                </p>
+              </div>
+              <svg class="w-5 h-5 text-white/40 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M6.5 3.5l10 6.5-10 6.5V3.5z"/>
+              </svg>
+            </button>
+          ))}
+        </div>
+      </div>
+    )}
 
   </section>
 

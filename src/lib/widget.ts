@@ -76,6 +76,30 @@ export async function seekTo(seconds: number): Promise<void> {
 }
 
 /**
+ * Cambia al stream en vivo de la radio.
+ */
+export async function goLive(): Promise<void> {
+  const { liveKey } = await import('./mixcloud')
+  const track: PlayerTrack = {
+    key:      liveKey(),
+    title:    'Radio Elástica',
+    dj:       'En vivo',
+    cover:    '/assets/logo-square.jpg',
+    duration: 0,
+    isLive:   true,
+  }
+  $playerStatus.set('loading')
+  $currentTrack.set(track)
+  $progress.set(0)
+  $position.set(0)
+  $duration.set(0)
+
+  const widget = await initWidget()
+  await widget.load(track.key, false)
+  widget.play()
+}
+
+/**
  * Pausa o reanuda según el estado actual.
  */
 export async function togglePlay(): Promise<void> {

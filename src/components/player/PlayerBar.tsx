@@ -9,7 +9,7 @@ import {
   $isLive,
 } from '@/lib/store'
 import { getEmisionState, minsUntilNext, formatCountdown, nextEmisionDate } from '@/lib/schedule'
-import { initWidget, togglePlay, seekTo } from '@/lib/widget'
+import { initWidget, togglePlay, seekTo, goLive } from '@/lib/widget'
 import { PLAYER_COPY } from '@/lib/constants'
 
 function formatTime(seconds: number): string {
@@ -65,52 +65,66 @@ export default function PlayerBar() {
           class="w-full h-1.5 bg-white/10 cursor-pointer group hover:h-2.5 transition-all"
         >
           <div
-            class="h-full bg-re-blue rounded-r-full transition-all duration-300
-                   group-hover:bg-blue-400"
+            class="h-full bg-white rounded-r-full transition-all duration-300
+                   group-hover:bg-white/80"
             style={{ width: `${progress * 100}%` }}
           />
         </div>
       )}
 
       {/* Contenido del reproductor */}
-      <div class="flex items-center gap-3 px-4" style={{ height: '68px' }}>
+      <div class="flex items-center gap-4 px-5" style={{ height: '84px' }}>
 
         {/* Portada */}
         <img
           src={displayCover}
           alt={displayTitle}
-          class="w-10 h-10 rounded-md object-cover flex-shrink-0"
+          class="w-14 h-14 rounded-lg object-cover flex-shrink-0"
           onError={(e) => { (e.target as HTMLImageElement).src = '/assets/logo-square.jpg' }}
         />
 
         {/* Info + tiempo */}
         <div class="flex-1 min-w-0">
-          <p class="text-sm font-semibold text-white truncate">{displayTitle}</p>
-          <div class="flex items-center gap-2 mt-0.5">
+          <p class="text-base font-semibold text-white truncate">{displayTitle}</p>
+          <div class="flex items-center gap-2 mt-1">
             {track && duration > 0 ? (
-              <span class="text-xs text-white/40 tabular-nums">
+              <span class="text-sm text-white/40 tabular-nums">
                 {formatTime(position)} / {formatTime(duration)}
               </span>
             ) : (
-              <span class="text-xs text-white/40 truncate">{displaySubtitle}</span>
+              <span class="text-sm text-white/40 truncate">{displaySubtitle}</span>
             )}
           </div>
         </div>
 
-        {/* Badge EN VIVO */}
+        {/* Botón VOLVER AL VIVO — cuando hay emisión pero escucha grabado */}
+        {emission === 'live' && track && !isLive && (
+          <button
+            onClick={goLive}
+            class="flex-shrink-0 inline-flex items-center gap-1.5
+                   text-xs font-bold uppercase tracking-wider
+                   text-white bg-red-500/80 hover:bg-red-500
+                   px-3 py-1.5 rounded-full transition-colors"
+          >
+            <span class="w-2 h-2 rounded-full bg-white animate-pulse inline-block" />
+            En vivo
+          </button>
+        )}
+
+        {/* Badge EN VIVO — cuando ya está escuchando el directo */}
         {isLive && emission === 'live' && (
-          <span class="text-[10px] font-bold text-re-blue bg-re-blue/10
-                       border border-re-blue/30 px-2 py-1 rounded-full
-                       flex-shrink-0 hidden sm:flex items-center gap-1">
-            <span class="w-1.5 h-1.5 rounded-full bg-re-blue animate-pulse inline-block" />
+          <span class="text-xs font-bold text-re-blue bg-re-blue/10
+                       border border-re-blue/30 px-3 py-1.5 rounded-full
+                       flex-shrink-0 flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-re-blue animate-pulse inline-block" />
             EN VIVO
           </span>
         )}
 
         {/* Badge OFFLINE / PRONTO */}
         {!track && emission !== 'live' && (
-          <span class="text-[10px] font-bold text-white/30
-                       border border-white/10 px-2 py-1 rounded-full
+          <span class="text-xs font-bold text-white/30
+                       border border-white/10 px-3 py-1.5 rounded-full
                        flex-shrink-0 hidden sm:block">
             {emission === 'soon' ? copy.badge : 'OFFLINE'}
           </span>
@@ -121,20 +135,20 @@ export default function PlayerBar() {
           onClick={togglePlay}
           disabled={isLoading || (!track && emission !== 'live')}
           aria-label={isPlaying ? 'Pausar' : 'Reproducir'}
-          class="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center
+          class="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center
                  transition-opacity disabled:opacity-30
                  bg-re-blue hover:bg-blue-500"
         >
           {isLoading ? (
-            <span class="w-3 h-3 border-2 border-white/30 border-t-white
+            <span class="w-4 h-4 border-2 border-white/30 border-t-white
                          rounded-full animate-spin" />
           ) : isPlaying ? (
-            <svg width="10" height="10" viewBox="0 0 10 10" fill="white">
+            <svg width="12" height="12" viewBox="0 0 10 10" fill="white">
               <rect x="1" y="1" width="3" height="8" rx="0.8"/>
               <rect x="6" y="1" width="3" height="8" rx="0.8"/>
             </svg>
           ) : (
-            <svg width="10" height="11" viewBox="0 0 10 11" fill="white">
+            <svg width="12" height="13" viewBox="0 0 10 11" fill="white">
               <path d="M1 1l8 4.5-8 4.5V1z"/>
             </svg>
           )}

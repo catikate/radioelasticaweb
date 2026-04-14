@@ -77,7 +77,7 @@ const iframeSrc = widgetSrc(latest?.key)
   <a
     id="home-fab"
     href="/"
-    class="fixed z-50 bottom-[92px] right-5
+    class="fixed z-50 bottom-[104px] right-5
            w-12 h-12 rounded-full bg-white/10 border border-white/20
            flex items-center justify-center
            hover:bg-white/20 transition-colors
@@ -96,9 +96,15 @@ const iframeSrc = widgetSrc(latest?.key)
   <!-- Swipe derecha para volver a home (móvil) + mostrar/ocultar FAB -->
   <script is:inline>
     (function() {
-      // Mostrar FAB solo fuera de la home
+      // Mostrar FAB solo fuera de la home, con href inteligente
       var fab = document.getElementById('home-fab');
       if (fab && window.location.pathname !== '/') {
+        var path = window.location.pathname.replace(/\/$/, '');
+        var parts = path.split('/').filter(Boolean);
+        // /programas/slug → /programas, /residentes/slug → /residentes, resto → /
+        if (parts.length >= 2 && (parts[0] === 'programas' || parts[0] === 'residentes')) {
+          fab.href = '/' + parts[0];
+        }
         fab.classList.remove('hidden');
       }
 
@@ -115,7 +121,7 @@ const iframeSrc = widgetSrc(latest?.key)
         var dy = Math.abs(e.changedTouches[0].clientY - startY);
         // Swipe horizontal > 100px, no mucho vertical, empieza desde el borde izquierdo
         if (dx > 100 && dy < 80 && startX < 40 && window.location.pathname !== '/') {
-          window.location.href = '/';
+          window.location.href = fab ? fab.href : '/';
         }
       }, { passive: true });
     })();

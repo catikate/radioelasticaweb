@@ -39,8 +39,16 @@ async function mxFetch<T>(
 // ------------------------------------------------------------
 
 /**
+ * Comprueba si un episodio tiene un tag de Mixcloud (case-insensitive).
+ */
+function hasTag(ep: Cloudcast, tag: string): boolean {
+  return ep.tags?.some(t => t.name.toLowerCase() === tag.toLowerCase()) ?? false
+}
+
+/**
  * Lista los episodios de un usuario.
- * Si tags es un string (ej: 'residente-marta'), filtra por ese tag.
+ * Si tags es un string (ej: 'residente-lafat-bordieu'), filtra client-side
+ * por ese tag (la API de Mixcloud ignora el parámetro tags en cloudcasts).
  */
 export async function getCloudcasts(
   username = MIXCLOUD_USER,
@@ -51,18 +59,29 @@ export async function getCloudcasts(
     order?:  'latest' | 'popular'
   } = {}
 ): Promise<Cloudcast[]> {
+  // Si filtramos por tag, pedimos más resultados para tener margen
+  const fetchLimit = options.tags ? 100 : (options.limit ?? 20)
   const params: Record<string, string> = {
-    limit: String(options.limit ?? 20),
+    limit: String(fetchLimit),
   }
   if (options.offset) params.offset = String(options.offset)
-  if (options.tags)   params.tags   = options.tags
   if (options.order)  params.order  = options.order
 
   const res = await mxFetch<MixcloudResponse<Cloudcast>>(
     `/${username}/cloudcasts/`,
     params
   )
-  return res?.data ?? []
+  let items = res?.data ?? []
+
+  if (options.tags) {
+    items = items.filter(ep => hasTag(ep, options.tags!))
+  }
+
+  if (options.tags && options.limit) {
+    items = items.slice(0, options.limit)
+  }
+
+  return items
 }
 
 /**
