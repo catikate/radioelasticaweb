@@ -57,8 +57,10 @@ export async function playTrack(track: PlayerTrack): Promise<void> {
   const widget = await initWidget()
   const key = decodeURIComponent(track.key)
   console.log('[Widget] loading key:', key)
-  await widget.load(key, true)
-  console.log('[Widget] load complete')
+  await widget.load(key, false)
+  console.log('[Widget] load complete, calling play...')
+  widget.play()
+  console.log('[Widget] play called')
 }
 
 /**
