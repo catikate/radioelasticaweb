@@ -54,11 +54,10 @@ export async function playTrack(track: PlayerTrack): Promise<void> {
 }
 
 /**
- * Busca el último episodio de Mixcloud y lo carga en el widget sin autoplay.
- * Así el reproductor siempre tiene algo listo para darle al play.
+ * Busca el último episodio de Mixcloud y actualiza el store con su info.
+ * No carga en el widget todavía — eso pasa al darle play.
  */
 export async function loadLatest(): Promise<void> {
-  // Si ya hay un track cargado, no hacer nada
   if ($currentTrack.get()) return
 
   try {
@@ -68,19 +67,14 @@ export async function loadLatest(): Promise<void> {
     const latest = json.data?.[0]
     if (!latest) return
 
-    const track: PlayerTrack = {
+    $currentTrack.set({
       key:      latest.key,
       title:    latest.name,
       dj:       latest.user.name,
       cover:    latest.pictures?.large ?? latest.pictures?.medium ?? '/assets/logo-square.jpg',
       duration: latest.audio_length,
       isLive:   false,
-    }
-
-    $currentTrack.set(track)
-
-    const widget = await initWidget()
-    await widget.load(track.key, false)
+    })
   } catch (err) {
     console.error('[Widget] loadLatest failed:', err)
   }
@@ -88,6 +82,7 @@ export async function loadLatest(): Promise<void> {
 
 /**
  * Pausa o reanuda según el estado actual.
+ * Si no hay nada cargado en el widget, carga el track actual con autoplay.
  */
 export async function togglePlay(): Promise<void> {
   const widget = await initWidget()
@@ -95,6 +90,13 @@ export async function togglePlay(): Promise<void> {
 
   if (status === 'playing') {
     widget.pause()
+  } else if (status === 'idle' || status === 'ended') {
+    // Primera vez o terminó: cargar el track en el widget con autoplay
+    const track = $currentTrack.get()
+    if (track) {
+      $playerStatus.set('loading')
+      await widget.load(track.key, true)
+    }
   } else {
     widget.play()
   }
