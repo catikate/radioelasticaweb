@@ -147,7 +147,7 @@ export function liveKey(username = MIXCLOUD_USER): string {
  * URL del iframe del widget con opciones estándar.
  */
 export function widgetSrc(key?: string): string {
-  const base = 'https://www.mixcloud.com/widget/iframe/'
+  const base = 'https://player-widget.mixcloud.com/'
   const params = new URLSearchParams({
     hide_cover: '1',
     mini:       '1',

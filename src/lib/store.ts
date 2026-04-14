@@ -16,6 +16,12 @@ export const $playerStatus = atom<PlayerStatus>('idle')
 // Progreso de 0 a 1
 export const $progress = atom<number>(0)
 
+// Posición actual en segundos
+export const $position = atom<number>(0)
+
+// Duración total en segundos
+export const $duration = atom<number>(0)
+
 // Volumen de 0 a 1
 export const $volume = atom<number>(0.8)
 

@@ -115,6 +115,7 @@ export interface WidgetPlayer {
   load:     (key: string, autoplay: boolean) => Promise<void>
   play:     () => void
   pause:    () => void
+  seek:     (seconds: number) => void
   getPosition: () => Promise<number>
   getDuration: () => Promise<number>
   getVolume:   () => Promise<number>

@@ -9,6 +9,8 @@ import {
   $currentTrack,
   $playerStatus,
   $progress,
+  $position,
+  $duration,
 } from './store'
 
 let _widget: WidgetPlayer | null = null
@@ -40,6 +42,8 @@ export async function initWidget(): Promise<WidgetPlayer> {
   _widget.events.error.on((e: unknown) => { console.error('[Widget] event: error', e); $playerStatus.set('idle') })
   _widget.events.progress.on((pos: number, dur: number) => {
     $progress.set(dur > 0 ? pos / dur : 0)
+    $position.set(pos)
+    $duration.set(dur)
   })
 
   return _widget
@@ -61,6 +65,14 @@ export async function playTrack(track: PlayerTrack): Promise<void> {
   console.log('[Widget] load complete, calling play...')
   widget.play()
   console.log('[Widget] play called')
+}
+
+/**
+ * Salta a una posición en segundos.
+ */
+export async function seekTo(seconds: number): Promise<void> {
+  const widget = await initWidget()
+  widget.seek(seconds)
 }
 
 /**
