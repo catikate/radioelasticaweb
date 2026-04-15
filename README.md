@@ -1,156 +1,161 @@
-# Radio Elastica
+# Radio Elástica
 
-Sitio web de Radio Elastica — emisora online independiente desde Barcelona.
+[![Netlify Status](https://api.netlify.com/api/v1/badges/TU-BADGE-ID/deploy-status)](https://app.netlify.com/sites/radioelastica/deploys)
 
-**Stack:** Astro 4 + React + Tailwind CSS + Nanostores  
-**Deploy:** Netlify (hybrid SSR)  
-**Audio:** Mixcloud (API + widget embebido)  
-**Calendario:** Google Sheets (CSV publico)
+Website for [Radio Elástica](https://radioelastica.com) — independent online radio station from Barcelona. Live every Wednesday at 11:11.
 
-## Inicio rapido
+**[radioelastica.com](https://radioelastica.com)**
+
+---
+
+## Stack
+
+| Layer | Technology | Why |
+|---|---|---|
+| Framework | Astro 4 + React islands | Static HTML by default, JS only where needed |
+| Styles | Tailwind CSS | Utility-first, no custom CSS |
+| Global state | Nanostores | Minimal footprint, Astro-compatible |
+| Audio | Mixcloud API + Widget | Programme CMS without a database |
+| Calendar | Google Sheets (public CSV) | Editable by non-technical team members |
+| Deploy | Netlify (hybrid SSR) | Automatic CI/CD from GitHub |
+
+---
+
+## Architecture decisions
+
+**No database.** Mixcloud acts as the CMS for all audio content. Episodes are published there with specific tags and the site fetches them via API at build time. The calendar lives in a Google Sheet published as CSV. Zero server infrastructure.
+
+**Islands Architecture.** Only two components require client-side JavaScript: the player (`PlayerBar`) and the live broadcast status (`OnAirStrip`). Everything else is static HTML, resulting in faster pages and better SEO.
+
+**Minimal global state.** Only the player has global state (Nanostores). This keeps the codebase predictable — any component can know what is currently playing without prop drilling.
+
+**No-code deploy for the team.** A standalone HTML file with a button calls the Netlify Deploy Hook via POST. Any team member can update the calendar and publish new episodes without access to GitHub or Netlify.
+
+---
+
+## Getting started
 
 ```bash
 npm install
-npm run dev       # servidor local en localhost:4321
-npm run build     # build de produccion
-npm run preview   # preview del build
+cp .env.example .env   # fill in Mixcloud username and Sheet URL
+npm run dev            # local server at localhost:4321
+npm run build          # production build
+npm run preview        # preview the build
 ```
 
-### Variables de entorno
+## Environment variables
 
-Crear un archivo `.env` en la raiz:
-
-```env
+```bash
+# .env
 PUBLIC_MIXCLOUD_USER=radioelastica
 CALENDAR_SHEET_URL=https://docs.google.com/spreadsheets/d/.../export?format=csv
 ```
 
-## Estructura del proyecto
+---
+
+## Project structure
 
 ```
 src/
-  components/         # Componentes React y Astro
-    player/           # Reproductor (PlayerBar.tsx)
+  components/
+    player/           # PlayerBar.tsx — fixed bottom player
     layout/           # Navbar
-    home/             # Componentes del home
+    home/             # Home page components
   layouts/
-    Base.astro        # Layout base (navbar + player + iframe Mixcloud)
+    Base.astro        # Base layout (navbar + player + Mixcloud iframe)
   lib/
-    constants.ts      # Programas, tags, horarios, textos
-    mixcloud.ts       # API de Mixcloud (fetch de episodios)
-    calendar.ts       # Calendario desde Google Sheet
-    widget.ts         # Control del widget Mixcloud (play, pause, seek)
-    store.ts          # Estado global (nanostores)
-    schedule.ts       # Logica de emision en vivo
-    types.ts          # Tipos TypeScript
+    constants.ts      # Programmes, tags, schedule, copy
+    mixcloud.ts       # Mixcloud API (episode fetching)
+    calendar.ts       # Calendar from Google Sheet
+    widget.ts         # Mixcloud widget control (play, pause, seek)
+    store.ts          # Global state (nanostores)
+    schedule.ts       # Live broadcast logic
+    types.ts          # TypeScript types
   pages/
     index.astro       # Home
-    programas/        # Listado y detalle de programas
-    residentes/       # Listado y detalle de residentes
-    calendario/       # Grilla de programacion
-    tienda/           # Proximamente
+    programas/        # Programme list and detail
+    residentes/       # Resident list and detail
+    calendario/       # Schedule grid
+    tienda/           # Coming soon
 docs/
-  guia-tags-mixcloud.md   # Guia para residentes
+  guia-tags-mixcloud.md   # Tagging guide for residents
 ```
 
-## Como actualizar contenido
+---
 
-### Agregar o editar un programa
+## Content management
 
-Los programas se definen en `src/lib/constants.ts` en el array `PROGRAMAS`. Cada programa tiene:
+### Adding or editing a programme
+
+Programmes are defined in `src/lib/constants.ts` in the `PROGRAMAS` array:
 
 ```ts
 {
-  slug:        'nombre-del-programa',        // URL: /programas/nombre-del-programa
-  titulo:      'Nombre del Programa w/ DJ',  // titulo completo
-  programa:    'Nombre del Programa',        // nombre corto
-  residente:   'Nombre',                     // conductor/a ('Varios' si es rotativo)
-  tipo:        'residente',                  // 'residente' o 'rotativo'
-  tags:        [TAGS_RESIDENTES.xxx, TAG_TEMPORADA],  // tags de Mixcloud
-  descripcion: 'Descripcion del programa.',
-  foto:        '/assets/programas/slug.jpg', // foto 3:4
+  slug:        'programme-slug',
+  titulo:      'Programme Name w/ DJ Name',
+  programa:    'Programme Name',
+  residente:   'DJ Name',
+  tipo:        'residente',        // 'residente' or 'rotativo'
+  tags:        [TAGS_RESIDENTES.xxx, TAG_TEMPORADA],
+  descripcion: 'Programme description.',
+  foto:        '/assets/programas/slug.jpg',
   temporada:   1,
 }
 ```
 
-**Para agregar un programa nuevo:**
+### Mixcloud tagging system
 
-1. Agregar la foto en `public/assets/programas/` (formato vertical 3:4)
-2. Si es un residente nuevo, agregar su tag en `TAGS_RESIDENTES` y su foto en `public/assets/residentes/`
-3. Si es un programa rotativo o segundo programa de un residente, agregar su tag en `TAGS_PROGRAMAS`
-4. Agregar la entrada en el array `PROGRAMAS`
-5. Hacer build y deploy
+Every episode requires the following tags to appear on the site:
 
-### Subir episodios a Mixcloud (tags)
+| Tag | When to use |
+|---|---|
+| `residente-{name}` | Always — identifies the resident |
+| `programa-{name}` | For rotating programmes or residents with multiple shows |
+| `temporada-1` | Always |
+| `guest` | When the host is a guest, not a resident |
 
-Al subir un episodio en [mixcloud.com/upload](https://www.mixcloud.com/upload/), es fundamental poner los tags correctos para que aparezca en la seccion correspondiente del sitio.
+Resident tags:
 
-**Cada episodio lleva entre 2 y 3 tags:**
+| Resident | Tag |
+|---|---|
+| Draga | `residente-draga` |
+| Juli Kova | `residente-juli-kova` |
+| Cati Kate | `residente-cati-kate` |
+| Lafat Bordieu | `residente-lafat-bordieu` |
+| 1919 | `residente-1919` |
 
-1. **Tag de residente** (siempre): identifica a la persona
+Programme tags (for rotating formats):
 
-   | Residente | Tag |
-   |-----------|-----|
-   | Draga | `residente-draga` |
-   | Juli Kova | `residente-juli-kova` |
-   | Cati Kate | `residente-cati-kate` |
-   | Lafat Bordieu | `residente-lafat-bordieu` |
-   | 1919 | `residente-1919` |
+| Programme | Tag |
+|---|---|
+| Metálico Espejado | `programa-metalico-espejado` |
+| Fantasías Gráficas | `programa-fantasias-graficas` |
+| Una Mañana Elástica | `programa-manana-elastica` |
 
-2. **Tag de programa** (solo si aplica): necesario para programas rotativos o residentes con mas de un programa
+### Updating the calendar
 
-   | Programa | Tag |
-   |----------|-----|
-   | Metalico Espejado | `programa-metalico-espejado` |
-   | Fantasias Graficas | `programa-fantasias-graficas` |
-   | Una Manana Elastica | `programa-manana-elastica` |
+The calendar is powered by a Google Sheet published as CSV, configured via `CALENDAR_SHEET_URL`.
 
-3. **`temporada-1`** (siempre)
+Spreadsheet format:
 
-4. **`guest`** si es una invitada no residente
+| fecha | inicio | fin | programa | residente | tag_mixcloud | notas |
+|---|---|---|---|---|---|---|
+| 2026-04-22 | 11:11 | 12:12 | Los Fantasmas de Mi Vida | Cati Kate | residente-cati-kate | |
 
-**Ejemplos:**
+- `fecha`: format `YYYY-MM-DD`
+- `inicio` / `fin`: format `HH:MM` (24h)
 
-| Situacion | Tags |
-|-----------|------|
-| Draga sube Sentimientos Encontrados | `residente-draga`, `temporada-1` |
-| Lafat sube Metalico Espejado | `residente-lafat-bordieu`, `programa-metalico-espejado`, `temporada-1` |
-| Lafat conduce Una Manana Elastica | `residente-lafat-bordieu`, `programa-manana-elastica`, `temporada-1` |
-| Invitada conduce Una Manana Elastica | `programa-manana-elastica`, `guest`, `temporada-1` |
+---
 
-> La guia completa para residentes esta en `docs/guia-tags-mixcloud.md`.
+## Technical notes
 
-**Importante:** no inventar tags nuevos sin agregarlos primero en `constants.ts` — la web filtra episodios por estos tags y los que no coincidan no aparecen.
+- **Tag filtering:** The Mixcloud API ignores the `tags` parameter on the cloudcasts endpoint. Filtering is done client-side by comparing against each episode's tag array (case-insensitive).
+- **Cache:** Episodes 10 min, user profiles 1 hour, calendar 1 hour.
+- **Player:** The Mixcloud widget runs in a hidden iframe in `Base.astro`. `PlayerBar.tsx` controls the UI and communicates via the widget API.
+- **Live detection:** Detected by day and time (Wednesday 11:11–13:13) defined in `constants.ts > EMISSION`. Recalculated every 30 seconds without API calls.
 
-### Actualizar el calendario
+---
 
-El calendario se alimenta de un Google Sheet publicado como CSV. La URL se configura en la variable de entorno `CALENDAR_SHEET_URL`.
+## License
 
-**Formato del spreadsheet** (columnas en orden):
-
-| Fecha | Inicio | Fin | Programa | Residente | Tag Mixcloud | Notas |
-|-------|--------|-----|----------|-----------|-------------|-------|
-| 2026-04-22 | 11:11 | 12:12 | Los Fantasmas de Mi Vida | Cati Kate | residente-cati-kate | Episodio piloto |
-
-- **Fecha:** formato `YYYY-MM-DD`
-- **Inicio/Fin:** formato `HH:MM` (24h)
-- **Programa:** nombre exacto del programa
-- **Residente:** nombre del conductor/a
-- **Tag Mixcloud:** el tag principal del programa
-- **Notas:** opcional, texto libre
-
-Para actualizar la programacion simplemente editar el Google Sheet. Los cambios se reflejan en la web automaticamente (cache de 1 hora).
-
-### Agregar un residente
-
-1. Agregar la foto en `public/assets/residentes/{slug}.jpg` (formato vertical 3:4)
-2. Agregar el tag en `TAGS_RESIDENTES` en `src/lib/constants.ts`
-3. Agregar su programa en el array `PROGRAMAS`
-4. Comunicarle los tags que debe usar al subir episodios (ver `docs/guia-tags-mixcloud.md`)
-
-## Notas tecnicas
-
-- **Filtrado de tags:** la API de Mixcloud ignora el parametro `tags` en el endpoint de cloudcasts. El filtrado se hace client-side comparando contra el array `tags` de cada episodio (case-insensitive).
-- **Cache:** episodios 10 min, perfil 1 hora, calendario 1 hora.
-- **Reproductor:** el widget de Mixcloud corre en un iframe oculto en `Base.astro`. El componente `PlayerBar.tsx` controla la UI y se comunica via la API del widget.
-- **Emision en vivo:** se detecta por dia y hora (miercoles 11:11–13:13) definidos en `constants.ts > EMISSION`.
+Private project. All rights reserved.
