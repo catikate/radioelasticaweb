@@ -10,3 +10,6 @@ dist/
 *.zip
 *.docx
 Fondo azul.JPG
+
+# Herramienta de deploy local (contiene build hook privado)
+actualizar-web.html
