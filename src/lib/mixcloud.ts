@@ -14,7 +14,7 @@ import type { Cloudcast, MixcloudUser, MixcloudResponse } from './types'
 async function mxFetch<T>(
   path: string,
   params: Record<string, string> = {},
-  cacheSeconds = CACHE.CLOUDCASTS
+  cacheSeconds: number = CACHE.CLOUDCASTS
 ): Promise<T | null> {
   const url = new URL(`${MIXCLOUD_BASE}${path}`)
   Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v))

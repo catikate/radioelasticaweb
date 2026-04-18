@@ -1,7 +1,5 @@
 // ============================================================
 // Radio Elástica — Mixcloud Widget singleton
-// El widget se inicializa una sola vez y se reutiliza siempre.
-// Nunca destruyas ni recrees el iframe.
 // ============================================================
 
 import type { WidgetPlayer, PlayerTrack } from './types'
@@ -16,30 +14,48 @@ import {
 let _widget: WidgetPlayer | null = null
 let _ready = false
 
+function normalizeKey(key: string): string {
+  if (!key) throw new Error('[Widget] empty key')
+
+  // ya viene correcto
+  if (key.startsWith('/')) return key
+
+  // evitar doble encoding raro
+  const decoded = decodeURIComponent(key)
+
+  return decoded.startsWith('/') ? decoded : `/${decoded}/`
+}
+
 /**
- * Inicializa el widget y lo conecta al store.
- * Llámalo solo desde PlayerBar al montar.
+ * Inicializa el widget
  */
 export async function initWidget(): Promise<WidgetPlayer> {
   if (_ready && _widget) return _widget
 
   const iframe = document.getElementById('mc-widget') as HTMLIFrameElement
-  if (!iframe) throw new Error('[Widget] mc-widget iframe not found')
 
-  console.log('[Widget] iframe found, src:', iframe.src)
-  console.log('[Widget] Mixcloud API available:', !!window.Mixcloud)
+  if (!iframe) {
+    throw new Error('[Widget] mc-widget iframe not found')
+  }
+
+  if (!iframe.src || !iframe.src.includes('mixcloud')) {
+    throw new Error('[Widget] iframe src not ready')
+  }
+
+  console.log('[Widget] iframe ready:', iframe.src)
+  console.log('[Widget] Mixcloud available:', !!window.Mixcloud)
 
   _widget = window.Mixcloud.PlayerWidget(iframe)
-  console.log('[Widget] waiting for ready...')
+
   await _widget.ready
-  console.log('[Widget] ready!')
   _ready = true
 
-  // Conectar eventos al store
-  _widget.events.play.on(()  => { console.log('[Widget] event: play'); $playerStatus.set('playing') })
-  _widget.events.pause.on(() => { console.log('[Widget] event: pause'); $playerStatus.set('paused') })
-  _widget.events.ended.on(() => { console.log('[Widget] event: ended'); $playerStatus.set('ended') })
-  _widget.events.error.on((e: unknown) => { console.error('[Widget] event: error', e); $playerStatus.set('idle') })
+  // events
+  _widget.events.play.on(() => $playerStatus.set('playing'))
+  _widget.events.pause.on(() => $playerStatus.set('paused'))
+  _widget.events.ended.on(() => $playerStatus.set('ended'))
+  _widget.events.error.on(() => $playerStatus.set('idle'))
+
   _widget.events.progress.on((pos: number, dur: number) => {
     $progress.set(dur > 0 ? pos / dur : 0)
     $position.set(pos)
@@ -50,25 +66,25 @@ export async function initWidget(): Promise<WidgetPlayer> {
 }
 
 /**
- * Carga una pista en el widget y la reproduce.
- * Acepta cualquier Mixcloud key.
+ * Reproducir track (episodio o live)
  */
 export async function playTrack(track: PlayerTrack): Promise<void> {
-  console.log('[Widget] playTrack called:', track.key)
+  console.log('[DEBUG KEY]', track.key) // 👈 AQUÍ
+
   $playerStatus.set('loading')
   $currentTrack.set(track)
 
   const widget = await initWidget()
-  const key = decodeURIComponent(track.key)
-  console.log('[Widget] loading key:', key)
-  await widget.load(key, false)
-  console.log('[Widget] load complete, calling play...')
-  widget.play()
-  console.log('[Widget] play called')
+
+  const key = normalizeKey(track.key)
+
+  console.log('[DEBUG NORMALIZED KEY]', key) // 👈 AQUÍ TAMBIÉN
+
+  await widget.load(key, true)
 }
 
 /**
- * Salta a una posición en segundos.
+ * Salta a posición
  */
 export async function seekTo(seconds: number): Promise<void> {
   const widget = await initWidget()
@@ -76,18 +92,22 @@ export async function seekTo(seconds: number): Promise<void> {
 }
 
 /**
- * Cambia al stream en vivo de la radio.
+ * LIVE STREAM
  */
 export async function goLive(): Promise<void> {
   const { liveKey } = await import('./mixcloud')
+
+  const key = normalizeKey(liveKey())
+
   const track: PlayerTrack = {
-    key:      liveKey(),
-    title:    'Radio Elástica',
-    dj:       'En vivo',
-    cover:    '/assets/logo-square.jpg',
+    key,
+    title: 'Radio Elástica',
+    dj: 'En vivo',
+    cover: '/assets/logo-square.jpg',
     duration: 0,
-    isLive:   true,
+    isLive: true,
   }
+
   $playerStatus.set('loading')
   $currentTrack.set(track)
   $progress.set(0)
@@ -95,12 +115,14 @@ export async function goLive(): Promise<void> {
   $duration.set(0)
 
   const widget = await initWidget()
-  await widget.load(track.key, false)
-  widget.play()
+
+  console.log('[Widget] going LIVE:', key)
+
+  await widget.load(key, true)
 }
 
 /**
- * Pausa o reanuda según el estado actual.
+ * Play/pause toggle
  */
 export async function togglePlay(): Promise<void> {
   const widget = await initWidget()
