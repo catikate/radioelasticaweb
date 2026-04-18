@@ -33,32 +33,32 @@ export default function OnAirStrip() {
 
   if (state === 'live') {
     return (
-      <div class="flex flex-col items-center gap-4">
-        <span class="inline-flex items-center gap-2 text-[11px] font-bold
+      <div className="flex flex-col items-center gap-4">
+        <span className="inline-flex items-center gap-2 text-[11px] font-bold
                      text-white bg-white/15 border border-white/30
                      px-3 py-1.5 rounded-full uppercase tracking-widest">
-          <span class="w-2 h-2 rounded-full bg-white animate-pulse" />
+          <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
           {PLAYER_COPY.live.badge}
         </span>
-        <p class="text-white/70 text-sm">{PLAYER_COPY.live.subtitle}</p>
+        <p className="text-white/70 text-sm">{PLAYER_COPY.live.subtitle}</p>
       </div>
     )
   }
 
   if (state === 'soon') {
     return (
-      <div class="flex flex-col items-center gap-3">
-        <span class="inline-flex items-center gap-2 text-[11px] font-bold
+      <div className="flex flex-col items-center gap-3">
+        <span className="inline-flex items-center gap-2 text-[11px] font-bold
                      text-white/60 border border-white/20
                      px-3 py-1.5 rounded-full uppercase tracking-widest">
           {PLAYER_COPY.soon.badge}
         </span>
-        <p class="text-white/50 text-sm">
+        <p className="text-white/50 text-sm">
           {PLAYER_COPY.soon.subtitle(countdown)}
         </p>
         <button
           onClick={handlePlayLast}
-          class="mt-1 text-xs text-white/40 hover:text-white/70
+          className="mt-1 text-xs text-white/40 hover:text-white/70
                  underline underline-offset-2 transition-colors"
         >
           Escucha el último programa →
@@ -69,18 +69,18 @@ export default function OnAirStrip() {
 
   // offline
   return (
-    <div class="flex flex-col items-center gap-3">
-      <span class="inline-flex items-center text-[11px] font-bold
+    <div className="flex flex-col items-center gap-3">
+      <span className="inline-flex items-center text-[11px] font-bold
                    text-white/30 border border-white/10
                    px-3 py-1.5 rounded-full uppercase tracking-widest">
         {PLAYER_COPY.offline.badge}
       </span>
-      <p class="text-white/40 text-sm">
+      <p className="text-white/40 text-sm">
         {PLAYER_COPY.offline.subtitle(nextDate)}
       </p>
       <button
         onClick={handlePlayLast}
-        class="mt-1 text-xs text-white/40 hover:text-white/70
+        className="mt-1 text-xs text-white/40 hover:text-white/70
                underline underline-offset-2 transition-colors"
       >
         Escucha el último programa →

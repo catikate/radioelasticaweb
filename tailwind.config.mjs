@@ -5,7 +5,7 @@ export default {
     extend: {
       colors: {
         re: {
-          blue:    '#3B6FFF',   // azul eléctrico — color principal
+          blue:    '#3A7BF5',   // azul eléctrico — color principal (igual al fondo del GIF)
           ink:     '#1B3FAB',   // azul tinta — anotaciones manuscritas
           player:  '#1a1a2e',   // fondo del reproductor fijo
         },
