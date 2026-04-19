@@ -13,3 +13,8 @@ Fondo azul.JPG
 
 # Herramienta de deploy local (contiene build hook privado)
 actualizar-web.html
+
+# Archivos de Claude Code (no deben aparecer en el repo público)
+.claude/
+**/CLAUDE.md
+.mcp.json
