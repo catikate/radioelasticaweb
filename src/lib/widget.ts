@@ -69,18 +69,14 @@ export async function initWidget(): Promise<WidgetPlayer> {
  * Reproducir track (episodio o live)
  */
 export async function playTrack(track: PlayerTrack): Promise<void> {
-  console.log('[DEBUG KEY]', track.key) // 👈 AQUÍ
-
   $playerStatus.set('loading')
   $currentTrack.set(track)
 
+  const key    = normalizeKey(track.key)
   const widget = await initWidget()
 
-  const key = normalizeKey(track.key)
-
-  console.log('[DEBUG NORMALIZED KEY]', key) // 👈 AQUÍ TAMBIÉN
-
-  await widget.load(key, true)
+  await widget.load(key, false)
+  widget.play()
 }
 
 /**
@@ -107,27 +103,33 @@ export async function goLive(): Promise<void> {
     duration: 0,
     isLive: true,
   }
-
   $playerStatus.set('loading')
   $currentTrack.set(track)
-  $progress.set(0)
-  $position.set(0)
-  $duration.set(0)
 
   const widget = await initWidget()
 
-  console.log('[Widget] going LIVE:', key)
-
-  await widget.load(key, true)
+  await widget.load(key, false)
+  widget.play()
 }
 
 /**
- * Play/pause toggle
+ * Play/pause toggle.
+ * Si no hay track cargado y la emisión está en vivo, arranca el directo.
  */
 export async function togglePlay(): Promise<void> {
-  const widget = await initWidget()
   const status = $playerStatus.get()
+  const track  = $currentTrack.get()
 
+  // Sin track cargado + emisión en vivo → arrancar directo
+  if (!track) {
+    const { getEmisionState } = await import('./schedule')
+    if (getEmisionState() === 'live') {
+      await goLive()
+      return
+    }
+  }
+
+  const widget = await initWidget()
   if (status === 'playing') {
     widget.pause()
   } else {

@@ -1,5 +1,5 @@
 import { useStore }   from '@nanostores/react'
-import { useEffect, useRef, useCallback }  from 'react'
+import { useEffect, useRef, useCallback, useState }  from 'react'
 import {
   $currentTrack,
   $playerStatus,
@@ -11,6 +11,7 @@ import {
 import { getEmisionState, minsUntilNext, formatCountdown, nextEmisionDate } from '@/lib/schedule'
 import { initWidget, togglePlay, seekTo, goLive } from '@/lib/widget'
 import { PLAYER_COPY } from '@/lib/constants'
+import type { EmisionState } from '@/lib/types'
 
 function formatTime(seconds: number): string {
   const m = Math.floor(seconds / 60)
@@ -25,11 +26,18 @@ export default function PlayerBar() {
   const position = useStore($position)
   const duration = useStore($duration)
   const isLive   = useStore($isLive)
-  const emission = getEmisionState()
+  const [emission, setEmission] = useState<EmisionState>(() => getEmisionState())
   const barRef   = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     initWidget().catch(console.error)
+  }, [])
+
+  // Re-evaluar estado de emisión cada 30s — para que el player pase a "EN VIVO"
+  // sin necesidad de recargar la página al llegar la hora.
+  useEffect(() => {
+    const id = setInterval(() => setEmission(getEmisionState()), 30_000)
+    return () => clearInterval(id)
   }, [])
 
   const isPlaying = status === 'playing'
@@ -111,8 +119,8 @@ export default function PlayerBar() {
           </button>
         )}
 
-        {/* Badge EN VIVO — cuando ya está escuchando el directo */}
-        {isLive && emission === 'live' && (
+        {/* Badge EN VIVO — siempre que haya emisión en directo (aunque no esté sonando aún) */}
+        {emission === 'live' && !(track && !isLive) && (
           <span class="text-xs font-bold text-re-blue bg-re-blue/10
                        border border-re-blue/30 px-3 py-1.5 rounded-full
                        flex-shrink-0 flex items-center gap-1.5">
