@@ -95,10 +95,10 @@ export const TAG_TEMPORADA = 'temporada-1'
 // ------------------------------------------------------------
 
 export const COLORS = {
-  primary:      '#3B6FFF',
+  primary:      '#0E76FF   ',
   logoWhite:    '#FFFFFF',
   playerBg:     '#1a1a2e',
-  playerBorder: '#3B6FFF',
+  playerBorder: '#3878F533',  // primary con opacidad
   inkBlue:      '#1B3FAB',
 } as const
 
