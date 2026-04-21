@@ -158,10 +158,9 @@ export function cloudcastKey(slug: string, username = MIXCLOUD_USER): string {
 /**
  * Key del stream en vivo de la radio.
  */
-export function liveKey(username = MIXCLOUD_USER): string {
-  return `/${username}/`
+export function liveKey(): string {
+  return `/live/${MIXCLOUD_USER}/`
 }
-
 /**
  * URL del iframe del widget con opciones estándar.
  */
