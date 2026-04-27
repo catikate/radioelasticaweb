@@ -11,9 +11,9 @@
 
   /* Zona de contenido scrolleable entre nav y reproductor */
   #content {
-    height: calc(100vh - 136px - 72px); /* 100vh - nav - player */
+    height: calc(100vh - 136px - 84px - 52px); /* 100vh - nav - player - live banner */
     margin-top: 136px;
-    margin-bottom: 72px;
+    margin-bottom: calc(84px + 52px); /* player + live banner máximo */
     overflow-y: auto;
     overflow-x: hidden;
     scroll-behavior: smooth;
