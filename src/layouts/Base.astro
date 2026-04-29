@@ -82,6 +82,9 @@ const initialSrc = widgetSrc(latest?.key)
       <path d="M10 5l-5 5 5 5"/>
     </svg>
   </a>
+<!-- AUDIO EN VIVO — singleton persistente, controlado por liveAudio.ts -->
+<audio id="live-audio" transition:persist></audio>
+
 <!-- BANNER EN VIVO -->
 <LivePlayer client:load transition:persist />
 

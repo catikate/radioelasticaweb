@@ -25,6 +25,10 @@ export const $duration = atom<number>(0)
 // Volumen de 0 a 1
 export const $volume = atom<number>(0.8)
 
+// Emisión en vivo
+export const $liveOnAir  = atom<boolean>(false)
+export const $liveStatus = atom<PlayerStatus>('idle')
+
 // Derivados
 export const $isLive    = computed($currentTrack, t => t?.isLive ?? false)
 export const $isPlaying = computed($playerStatus, s => s === 'playing')

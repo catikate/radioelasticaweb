@@ -1,19 +1,9 @@
-// ============================================================
-// Radio Elástica — Singleton del stream en vivo
-// El <audio id="live-audio"> vive en Base.astro con transition:persist.
-// Acá se controla y se publica su estado en nanostores.
-// React solo lee los stores y llama a toggleLive().
-// ============================================================
-
-import { MIXCLOUD_USER } from './constants'
+import Hls from 'hls.js'
 import { $liveOnAir, $liveStatus } from './store'
 
-const LIVE_STREAM_URL = `https://stream.mixcloud.com/live/${MIXCLOUD_USER}/`
-const LIVE_STATUS_URL = `https://api.mixcloud.com/${MIXCLOUD_USER}/live/`
-const POLL_MS = 60_000
-
 let _audio: HTMLAudioElement | null = null
-let _bound = false
+let _hls:   Hls | null = null
+let _bound  = false
 let _pollId: ReturnType<typeof setInterval> | null = null
 
 function getAudio(): HTMLAudioElement | null {
@@ -21,7 +11,6 @@ function getAudio(): HTMLAudioElement | null {
   const el = document.getElementById('live-audio') as HTMLAudioElement | null
   if (!el) return null
   _audio = el
-
   if (!_bound) {
     el.addEventListener('play',    () => $liveStatus.set('playing'))
     el.addEventListener('pause',   () => $liveStatus.set('paused'))
@@ -32,33 +21,56 @@ function getAudio(): HTMLAudioElement | null {
   return el
 }
 
-async function checkLive() {
-  try {
-    const res = await fetch(LIVE_STATUS_URL)
-    $liveOnAir.set(res.ok)
-  } catch {
-    $liveOnAir.set(false)
-  }
-}
-
-export function startLivePolling() {
+export function startLivePolling(onStatus: (live: boolean, proxyUrl?: string) => void) {
   getAudio()
   if (_pollId) return
-  checkLive()
-  _pollId = setInterval(checkLive, POLL_MS)
+
+  async function poll() {
+    try {
+      const res  = await fetch('/api/live-url')
+      const data = await res.json()
+      $liveOnAir.set(data.isLive === true)
+      onStatus(data.isLive === true, data.proxyUrl)
+    } catch {
+      $liveOnAir.set(false)
+      onStatus(false)
+    }
+  }
+
+  poll()
+  _pollId = setInterval(poll, 60_000)
 }
 
-export function toggleLive() {
+// proxyUrl viene del resultado de /api/live-url — ya resuelto antes del click
+export function toggleLive(proxyUrl: string) {
   const a = getAudio()
   if (!a) return
 
   if (!a.paused) {
     a.pause()
+    _hls?.destroy()
+    _hls = null
     return
   }
 
   $liveStatus.set('loading')
-  a.src = `${LIVE_STREAM_URL}?t=${Date.now()}`
-  a.load()
-  a.play().catch(() => $liveStatus.set('error'))
+
+  if (Hls.isSupported()) {
+    _hls?.destroy()
+    _hls = new Hls({ lowLatencyMode: true })
+    _hls.loadSource(proxyUrl)
+    _hls.attachMedia(a)
+    _hls.on(Hls.Events.MANIFEST_PARSED, () => {
+      a.play().catch(() => $liveStatus.set('error'))
+    })
+    _hls.on(Hls.Events.ERROR, (_e, data) => {
+      if (data.fatal) $liveStatus.set('error')
+    })
+  } else if (a.canPlayType('application/vnd.apple.mpegurl')) {
+    a.src = proxyUrl
+    a.load()
+    a.play().catch(() => $liveStatus.set('error'))
+  } else {
+    $liveStatus.set('error')
+  }
 }

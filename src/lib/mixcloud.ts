@@ -160,6 +160,20 @@ export function cloudcastKey(slug: string, username = MIXCLOUD_USER): string {
 export function liveKey(): string {
   return `/live/${MIXCLOUD_USER}/`
 }
+
+/**
+ * URL del iframe para el stream en vivo.
+ * Usa www.mixcloud.com/widget/iframe/ — distinto al player bar de cloudcasts.
+ */
+export function liveWidgetSrc(): string {
+  const params = new URLSearchParams({
+    feed:       `/live/${MIXCLOUD_USER}/`,
+    mini:       '1',
+    hide_cover: '1',
+    autoplay:   '1',
+  })
+  return `https://www.mixcloud.com/widget/iframe/?${params}`
+}
 /**
  * URL del iframe del widget con opciones estándar.
  */
