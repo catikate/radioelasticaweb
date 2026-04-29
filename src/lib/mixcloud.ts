@@ -149,7 +149,6 @@ export async function getMixcloudUser(
 
 /**
  * Devuelve la Mixcloud key de un episodio.
- * Es lo que se pasa a widget.load().
  */
 export function cloudcastKey(slug: string, username = MIXCLOUD_USER): string {
   return `/${username}/${slug}/`
@@ -164,14 +163,13 @@ export function liveKey(): string {
 /**
  * URL del iframe del widget con opciones estándar.
  */
-export function widgetSrc(key?: string): string {
+export function widgetSrc(key?: string, autoplay = false): string {
   const base = 'https://player-widget.mixcloud.com/'
   const params = new URLSearchParams({
     hide_cover: '1',
     mini:       '1',
-    autoplay:   '0',
+    autoplay:   autoplay ? '1' : '0',
   })
-  // Decodificar la key para evitar doble encoding por URLSearchParams
   if (key) params.set('feed', decodeURIComponent(key))
   return `${base}?${params}`
 }

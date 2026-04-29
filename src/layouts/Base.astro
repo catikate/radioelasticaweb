@@ -1,9 +1,8 @@
 ---
 import '../styles/global.css'
 import { ViewTransitions } from 'astro:transitions'
-import Navbar    from '@/components/layout/Navbar.astro'
-import PlayerBar  from '@/components/player/PlayerBar'
-import LivePlayer from '@/components/player/LivePlayer'
+import Navbar     from '@/components/layout/Navbar.astro'
+import LivePlayer  from '@/components/player/LivePlayer'
 import { getLatestCloudcast } from '@/lib/mixcloud'
 import { widgetSrc } from '@/lib/mixcloud'
 
@@ -21,7 +20,7 @@ const {
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://radioelastica.com')
 const latest = await getLatestCloudcast()
-const iframeSrc = widgetSrc(latest?.key)
+const initialSrc = widgetSrc(latest?.key)
 ---
 
 <!doctype html>
@@ -54,9 +53,6 @@ const iframeSrc = widgetSrc(latest?.key)
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
 
-  <!-- Mixcloud Widget API — se carga una sola vez aquí -->
-  <script src="https://widget.mixcloud.com/media/js/widgetApi.js" is:inline></script>
-
   <ViewTransitions />
 </head>
 
@@ -64,15 +60,6 @@ const iframeSrc = widgetSrc(latest?.key)
 
   <!-- NAV — fijo en la parte superior -->
   <Navbar />
-
-  <!-- IFRAME de Mixcloud — fuera de la vista, se controla desde PlayerBar -->
-  <iframe
-    id="mc-widget"
-    src={iframeSrc}
-    style="width:1px;height:1px;position:absolute;left:-9999px"
-    aria-hidden="true"
-    transition:persist="mc-widget"
-  ></iframe>
 
   <!-- CONTENIDO — zona con scroll entre nav y reproductor -->
   <main id="content" class="no-scrollbar">
@@ -98,8 +85,33 @@ const iframeSrc = widgetSrc(latest?.key)
 <!-- BANNER EN VIVO -->
 <LivePlayer client:load transition:persist />
 
-<!-- REPRODUCTOR -->
-<PlayerBar client:load transition:persist />
+<!-- REPRODUCTOR — creado imperativament fuera de <body> para que el swap
+     de Astro View Transitions nunca lo toque. Los iframes se reinician al
+     salir del DOM; viviendo en <html> (no en <body>) nunca se desconectan. -->
+<script is:inline define:vars={{ initialSrc }}>
+  (function () {
+    if (document.getElementById('mc-widget')) return;
+
+    var iframe = document.createElement('iframe');
+    iframe.id    = 'mc-widget';
+    iframe.src   = initialSrc;
+    iframe.allow = 'autoplay';
+    iframe.style.cssText = 'width:100%;height:62px;border:none;';
+
+    var bar = document.createElement('div');
+    bar.id = 'player-bar';
+    bar.style.cssText = [
+      'position:fixed', 'bottom:0', 'left:0', 'right:0',
+      'height:84px', 'z-index:50',
+      'display:flex', 'align-items:center',
+      'background:#1a1a2e',
+      'border-top:2px solid #3878F5',
+    ].join(';');
+
+    bar.appendChild(iframe);
+    document.documentElement.appendChild(bar);
+  })();
+</script>
 
   <!-- Swipe derecha para volver a home (móvil) + mostrar/ocultar FAB -->
   <script is:inline>

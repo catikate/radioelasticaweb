@@ -59,9 +59,13 @@ const episodios = await getCloudcasts(undefined, { limit: 12, order: 'latest' })
         target="_blank"
         rel="noopener noreferrer"
         class="block mx-auto mb-10 w-fit"
-        aria-label="Escúchanos aquí"
+        aria-label="Escúchanos aquí en Mixcloud"
       >
-        
+        <img
+          src={encodeURI('/assets/ESCÚCHANOS AQUÍ GIF SIN FONDO.GIF')}
+          alt="Escúchanos aquí"
+          class="h-16 w-auto"
+        />
       </a>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 max-w-5xl mx-auto">
@@ -102,24 +106,30 @@ const episodios = await getCloudcasts(undefined, { limit: 12, order: 'latest' })
   import { playTrack } from '@/lib/widget'
   import type { PlayerTrack } from '@/lib/types'
 
-  // Scroll suave al clickar la flecha
-  document.getElementById('scroll-down')?.addEventListener('click', () => {
-    document.getElementById('ultimos')?.scrollIntoView({ behavior: 'smooth' })
+  // Scroll suave — se re-adjunta en cada visita a la home
+  document.addEventListener('astro:page-load', () => {
+    document.getElementById('scroll-down')?.addEventListener('click', () => {
+      document.getElementById('ultimos')?.scrollIntoView({ behavior: 'smooth' })
+    })
   })
 
-  // Play al clickar episodio
-  document.querySelectorAll('.ep-play-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const el = btn as HTMLElement
+  // Delegación global para .ep-play-btn — se registra una sola vez por sesión.
+  // Los módulos ES solo ejecutan una vez, así que los listeners en elementos
+  // DOM concretos se pierden tras la navegación. La delegación en document persiste.
+  if (!(window as any).__epPlayInit) {
+    ;(window as any).__epPlayInit = true
+    document.addEventListener('click', (e: MouseEvent) => {
+      const btn = (e.target as Element).closest<HTMLElement>('.ep-play-btn')
+      if (!btn) return
       const track: PlayerTrack = {
-        key:      el.dataset.key!,
-        title:    el.dataset.title!,
+        key:      btn.dataset.key!,
+        title:    btn.dataset.title!,
         dj:       '',
-        cover:    el.dataset.cover!,
-        duration: Number(el.dataset.duration),
+        cover:    btn.dataset.cover!,
+        duration: Number(btn.dataset.duration),
         isLive:   false,
       }
       playTrack(track)
     })
-  })
+  }
 </script>

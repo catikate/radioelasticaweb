@@ -97,18 +97,20 @@ const episodios = await getCloudcasts(undefined, { tags: mainTag, limit: 50, ord
   import { playTrack } from '@/lib/widget'
   import type { PlayerTrack } from '@/lib/types'
 
-  document.querySelectorAll('.ep-play-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const el = btn as HTMLElement
+  if (!(window as any).__epPlayInit) {
+    ;(window as any).__epPlayInit = true
+    document.addEventListener('click', (e: MouseEvent) => {
+      const btn = (e.target as Element).closest<HTMLElement>('.ep-play-btn')
+      if (!btn) return
       const track: PlayerTrack = {
-        key:      el.dataset.key!,
-        title:    el.dataset.title!,
+        key:      btn.dataset.key!,
+        title:    btn.dataset.title!,
         dj:       '',
-        cover:    el.dataset.cover!,
-        duration: Number(el.dataset.duration),
+        cover:    btn.dataset.cover!,
+        duration: Number(btn.dataset.duration),
         isLive:   false,
       }
       playTrack(track)
     })
-  })
+  }
 </script>
