@@ -50,9 +50,11 @@ const episodios = await getCloudcasts(undefined, { limit: 12, order: 'latest' })
   {episodios.length > 0 && (
     <section id="ultimos" class="px-6 py-12">
 
-      <h2 class="font-display italic text-2xl sm:text-4xl text-white text-center mb-6">
-        ✦ LATEST SHOWS ✦
-      </h2>
+      <img
+        src="/assets/ÚLTIMAS TRANSMISIONES.PNG"
+        alt="Últimas transmisiones"
+        class="w-full max-w-[85vw] sm:max-w-[36rem] mx-auto mb-6"
+      />
 
       <a
         href="https://www.mixcloud.com/live/radioelastica/"
