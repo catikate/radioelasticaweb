@@ -14,7 +14,7 @@ const currentPath = Astro.url.pathname
 <nav
   class="fixed top-10 left-0 right-0 z-50 h-nav
          bg-re-blue
-         flex items-center justify-center gap-3 px-4"
+         flex items-center justify-center gap-1.5 sm:gap-3 px-2 sm:px-4"
 >
   {links.map(({ href, img, alt }) => (
     <a
@@ -29,7 +29,7 @@ const currentPath = Astro.url.pathname
       <img
         src={img}
         alt={alt}
-        class="h-14 w-auto"
+        class="h-9 sm:h-14 w-auto"
       />
     </a>
   ))}

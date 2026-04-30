@@ -11,9 +11,10 @@
 
   /* Zona de contenido scrolleable entre nav y reproductor */
   #content {
-    height: calc(100vh - 136px - 84px - 52px); /* 100vh - nav - player - live banner */
+    height: calc(100vh - 136px - 84px - 52px);
+    height: calc(100dvh - 136px - 84px - 52px); /* dvh accounts for mobile browser chrome */
     margin-top: 136px;
-    margin-bottom: calc(84px + 52px); /* player + live banner máximo */
+    margin-bottom: calc(84px + 52px);
     overflow-y: auto;
     overflow-x: hidden;
     scroll-behavior: smooth;

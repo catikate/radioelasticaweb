@@ -67,21 +67,23 @@ const initialSrc = widgetSrc(latest?.key)
   </main>
 
   <!-- BOTÓN HOME FLOTANTE — solo fuera de la home -->
-  <a
-    id="home-fab"
-    href="/"
-    class="fixed z-50 bottom-[104px] right-5
-           w-12 h-12 rounded-full bg-white/10 border border-white/20
-           flex items-center justify-center
-           hover:bg-white/20 transition-colors
-           hidden"
-    aria-label="Volver al inicio"
-  >
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M15 10H5"/>
-      <path d="M10 5l-5 5 5 5"/>
-    </svg>
-  </a>
+ <!-- BOTÓN HOME FLOTANTE — Grande y Centrado a la derecha -->
+<a
+  id="home-fab"
+  href="/"
+  class="fixed z-50 top-1/2 right-10 -translate-y-1/2
+         w-16 h-16 rounded-full bg-white/10 border border-white/20
+         flex items-center justify-center
+         hover:bg-white/20 transition-all transform hover:scale-110
+         hidden"
+  aria-label="Volver al inicio"
+>
+  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M19 12H5"/>
+    <path d="M12 19l-7-7 7-7"/>
+  </svg>
+</a>
+
 <!-- AUDIO EN VIVO — singleton persistente, controlado por liveAudio.ts -->
 <audio id="live-audio" transition:persist></audio>
 

@@ -19,11 +19,11 @@ const episodios = await getCloudcasts(undefined, { limit: 12, order: 'latest' })
       loop
       playsinline
       aria-label="Radio Elástica"
-      class="w-[60rem] max-w-full mx-auto mb-4"
+      class="w-full max-w-[90vw] sm:max-w-[60rem] mx-auto mb-4"
     ></img>
  <img
       src="/assets/Descripción radio sin fondo.PNG"
-      class="w-[44rem] max-w-full mx-auto mb-2"
+      class="w-full max-w-[75vw] sm:max-w-[44rem] mx-auto mb-2"
     />
 
 
@@ -51,7 +51,7 @@ const episodios = await getCloudcasts(undefined, { limit: 12, order: 'latest' })
     <section id="ultimos" class="px-6 py-12">
 
       <h2 class="font-display italic text-4xl text-white text-center mb-6">
-        ✦ ✦
+        ✦ LATEST SHOWS ✦
       </h2>
 
       <a
@@ -61,11 +61,6 @@ const episodios = await getCloudcasts(undefined, { limit: 12, order: 'latest' })
         class="block mx-auto mb-10 w-fit"
         aria-label="Escúchanos aquí en Mixcloud"
       >
-        <img
-          src={encodeURI('/assets/ESCÚCHANOS AQUÍ GIF SIN FONDO.GIF')}
-          alt="Escúchanos aquí"
-          class="h-16 w-auto"
-        />
       </a>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 max-w-5xl mx-auto">
