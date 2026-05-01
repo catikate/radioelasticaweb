@@ -47,7 +47,7 @@ if (residenteTag) {
 }
 
 const slug = Astro.params.slug!
-const fotoResidente = `/assets/residentes/${slug}.jpg`
+const fotoResidente = `/assets/residentes/${slug}.png`
 ---
 
 <Base title={residente}>
@@ -55,24 +55,13 @@ const fotoResidente = `/assets/residentes/${slug}.jpg`
   <section class="px-6 py-12 max-w-3xl mx-auto">
 
     <!-- Cabecera del residente -->
-    <div class="flex flex-col sm:flex-row items-center gap-6 mb-10">
-      <div class="bg-white p-2 pb-6 shadow-sm rotate-[-1deg] flex-shrink-0">
-        <img
-          src={fotoResidente}
-          alt={residente}
-          class="w-40 aspect-[3/4] object-cover"
-          onerror="this.onerror=null;this.src='/assets/logo-square.jpg'"
-        />
-      </div>
-      <div class="text-center sm:text-left">
-        <h1 class="font-display italic text-3xl text-white">{residente}</h1>
-        <p class="text-white/50 text-sm mt-2">
-          {programas.map(p => p.programa).join(' · ')}
-        </p>
-        <p class="text-white/40 text-xs mt-1">
-          {programas.map(p => p.descripcion).join(' — ')}
-        </p>
-      </div>
+    <div class="flex justify-center mb-10">
+      <img
+        src={fotoResidente}
+        alt={residente}
+        class="w-64"
+        onerror="this.onerror=null;this.src='/assets/logo-square.jpg'"
+      />
     </div>
 
     <!-- Programas con sus episodios -->

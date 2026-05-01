@@ -35,17 +35,14 @@ const rotations = ['-2deg', '1.5deg', '-1deg', '2deg', '-0.5deg']
       {residentes.map((r) => (
         <a
           href={`/residentes/${r.slug}`}
-          class="bg-white p-4 pb-10 block hover:scale-[1.02] transition-transform w-full"
+          class="block hover:scale-[1.02] transition-transform w-full"
         >
           <img
-            src={`/assets/residentes/${r.slug}.jpg`}
+            src={`/assets/residentes/${r.slug}.png`}
             alt={r.residente}
-            class="w-full aspect-square object-cover"
+            class="w-full"
             onerror="this.onerror=null;this.src='/assets/logo-square.jpg'"
           />
-          <p class="text-re-ink font-display italic text-center text-lg mt-4 font-bold">
-            {r.residente}
-          </p>
         </a>
       ))}
     </div>
