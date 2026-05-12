@@ -14,7 +14,9 @@ function getAudio(): HTMLAudioElement | null {
   if (!_bound) {
     el.addEventListener('play',    () => $liveStatus.set('playing'))
     el.addEventListener('pause',   () => $liveStatus.set('paused'))
-    el.addEventListener('waiting', () => $liveStatus.set('loading'))
+    el.addEventListener('waiting', () => {
+      if ($liveStatus.get() !== 'playing') $liveStatus.set('loading')
+    })
     el.addEventListener('error',   () => $liveStatus.set('error'))
     _bound = true
   }
@@ -41,15 +43,21 @@ export function startLivePolling(onStatus: (live: boolean, proxyUrl?: string) =>
   _pollId = setInterval(poll, 60_000)
 }
 
+function pauseMixcloudWidget() {
+  const iframe = document.getElementById('mc-widget') as HTMLIFrameElement | null
+  iframe?.contentWindow?.postMessage(JSON.stringify({ method: 'pause' }), '*')
+}
+
 // proxyUrl viene del resultado de /api/live-url — ya resuelto antes del click
 export function toggleLive(proxyUrl: string) {
   const a = getAudio()
   if (!a) return
 
   if (!a.paused) {
-    a.pause()
     _hls?.destroy()
     _hls = null
+    a.pause()
+    $liveStatus.set('paused')
     return
   }
 
@@ -61,6 +69,7 @@ export function toggleLive(proxyUrl: string) {
     _hls.loadSource(proxyUrl)
     _hls.attachMedia(a)
     _hls.on(Hls.Events.MANIFEST_PARSED, () => {
+      pauseMixcloudWidget()
       a.play().catch(() => $liveStatus.set('error'))
     })
     _hls.on(Hls.Events.ERROR, (_e, data) => {
@@ -69,6 +78,7 @@ export function toggleLive(proxyUrl: string) {
   } else if (a.canPlayType('application/vnd.apple.mpegurl')) {
     a.src = proxyUrl
     a.load()
+    pauseMixcloudWidget()
     a.play().catch(() => $liveStatus.set('error'))
   } else {
     $liveStatus.set('error')
