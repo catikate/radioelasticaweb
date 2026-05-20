@@ -68,6 +68,7 @@ export type PlayerStatus =
   | 'playing'    // reproduciendo
   | 'paused'     // pausado
   | 'ended'      // terminó
+  | 'error'      // error
 
 // ------------------------------------------------------------
 // Emisión en vivo

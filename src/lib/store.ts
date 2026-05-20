@@ -10,26 +10,12 @@ import type { PlayerTrack, PlayerStatus } from './types'
 // Qué está cargado en el widget
 export const $currentTrack = atom<PlayerTrack | null>(null)
 
-// Estado de reproducción
-export const $playerStatus = atom<PlayerStatus>('idle')
-
-// Progreso de 0 a 1
-export const $progress = atom<number>(0)
-
-// Posición actual en segundos
-export const $position = atom<number>(0)
-
-// Duración total en segundos
-export const $duration = atom<number>(0)
-
-// Volumen de 0 a 1
-export const $volume = atom<number>(0.8)
-
 // Emisión en vivo
 export const $liveOnAir  = atom<boolean>(false)
 export const $liveStatus = atom<PlayerStatus>('idle')
 
+// Qué reproductor está activo
+export const $activePlayer = atom<'archive' | 'live' | null>(null)
+
 // Derivados
-export const $isLive    = computed($currentTrack, t => t?.isLive ?? false)
-export const $isPlaying = computed($playerStatus, s => s === 'playing')
-export const $isLoading = computed($playerStatus, s => s === 'loading')
+export const $isPlaying = computed($liveStatus, s => s === 'playing')
