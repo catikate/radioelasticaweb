@@ -22,8 +22,12 @@ export const GET: APIRoute = async () => {
     if (!match)  return Response.json({ isLive: false })
 
     const proxyUrl = `/api/live-proxy/${match[1]}`
-    return Response.json({ isLive: true, proxyUrl })
+    return Response.json({ isLive: true, proxyUrl }, {
+      headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=30' },
+    })
   } catch {
-    return Response.json({ isLive: false })
+    return Response.json({ isLive: false }, {
+      headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=30' },
+    })
   }
 }

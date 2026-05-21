@@ -28,6 +28,7 @@ export function startLivePolling(onStatus: (live: boolean, proxyUrl?: string) =>
   if (_pollId) return
 
   async function poll() {
+    if (document.visibilityState === 'hidden') return
     try {
       const res  = await fetch('/api/live-url')
       const data = await res.json()
@@ -40,7 +41,7 @@ export function startLivePolling(onStatus: (live: boolean, proxyUrl?: string) =>
   }
 
   poll()
-  _pollId = setInterval(poll, 60_000)
+  _pollId = setInterval(poll, 5 * 60_000)
 }
 
 function pauseMixcloudWidget() {
