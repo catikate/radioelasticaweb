@@ -20,7 +20,7 @@ const {
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://radioelastica.com')
 const latest = await getLatestCloudcast()
-const initialSrc = widgetSrc(latest?.key)
+const initialSrc = latest?.key ? widgetSrc(latest.key) : null
 ---
 
 <!doctype html>
@@ -95,13 +95,7 @@ const initialSrc = widgetSrc(latest?.key)
      salir del DOM; viviendo en <html> (no en <body>) nunca se desconectan. -->
 <script is:inline define:vars={{ initialSrc }}>
   (function () {
-    if (document.getElementById('mc-widget')) return;
-
-    var iframe = document.createElement('iframe');
-    iframe.id    = 'mc-widget';
-    iframe.src   = initialSrc;
-    iframe.allow = 'autoplay';
-    iframe.style.cssText = 'width:100%;height:62px;border:none;';
+    if (document.getElementById('player-bar')) return;
 
     var bar = document.createElement('div');
     bar.id = 'player-bar';
@@ -113,9 +107,111 @@ const initialSrc = widgetSrc(latest?.key)
       'border-top:2px solid #3878F5',
     ].join(';');
 
-    bar.appendChild(iframe);
+    if (initialSrc) {
+      var iframe = document.createElement('iframe');
+      iframe.id    = 'mc-widget';
+      iframe.src   = initialSrc;
+      iframe.allow = 'autoplay';
+      iframe.style.cssText = 'width:100%;height:62px;border:none;';
+      bar.appendChild(iframe);
+    }
+
     document.documentElement.appendChild(bar);
   })();
+</script>
+
+<!-- ARCHIVE PLAYER — error handling + preflight check -->
+<script>
+  import { $currentTrack } from '@/lib/store'
+  import { widgetSrc } from '@/lib/mixcloud'
+  import type { PlayerTrack } from '@/lib/types'
+
+  let loadId = 0
+
+  function escape(s: string) {
+    return s.replace(/[&<>"']/g, c =>
+      ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c] ?? c)
+    )
+  }
+
+  function getBar()    { return document.getElementById('player-bar') }
+  function getIframe() { return document.getElementById('mc-widget') as HTMLIFrameElement | null }
+
+  function showIframe(src: string) {
+    const bar = getBar()
+    if (!bar) return
+    document.getElementById('mc-fallback')?.remove()
+    let iframe = getIframe()
+    if (iframe) {
+      iframe.style.display = 'block'
+      iframe.src = src
+    } else {
+      iframe = document.createElement('iframe')
+      iframe.id    = 'mc-widget'
+      iframe.src   = src
+      iframe.allow = 'autoplay'
+      iframe.style.cssText = 'width:100%;height:62px;border:none;'
+      bar.appendChild(iframe)
+    }
+  }
+
+  function showFallback(track: PlayerTrack) {
+    const bar    = getBar()
+    const iframe = getIframe()
+    if (!bar) return
+    if (iframe) iframe.style.display = 'none'
+    document.getElementById('mc-fallback')?.remove()
+
+    const div = document.createElement('div')
+    div.id = 'mc-fallback'
+    div.style.cssText = [
+      'display:flex', 'align-items:center', 'gap:12px',
+      'width:100%', 'padding:0 16px',
+    ].join(';')
+    div.innerHTML = `
+      <img src="${escape(track.cover)}" alt=""
+           style="height:44px;width:44px;object-fit:cover;border-radius:4px;flex-shrink:0" />
+      <div style="flex:1;min-width:0;overflow:hidden">
+        <p style="margin:0;font-size:13px;font-weight:bold;color:#fff;
+                  white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+          ${escape(track.title)}</p>
+        <p style="margin:2px 0 0;font-size:11px;color:rgba(255,255,255,0.5)">
+          El reproductor no está disponible en este momento.</p>
+      </div>
+      <button id="mc-retry"
+              style="flex-shrink:0;font-size:11px;color:#fff;cursor:pointer;white-space:nowrap;
+                     background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);
+                     padding:5px 12px;border-radius:4px">
+        Reintentar
+      </button>`
+    bar.appendChild(div)
+
+    document.getElementById('mc-retry')?.addEventListener('click', () => {
+      const t = $currentTrack.get()
+      if (t) loadTrack(t)
+    })
+  }
+
+  async function loadTrack(track: PlayerTrack) {
+    const myId = ++loadId
+    try {
+      const ctrl = new AbortController()
+      const timer = setTimeout(() => ctrl.abort(), 5000)
+      const res = await fetch(`https://api.mixcloud.com${track.key}`, { signal: ctrl.signal })
+      clearTimeout(timer)
+      if (loadId !== myId) return
+      if (!res.ok) throw new Error(String(res.status))
+      showIframe(widgetSrc(track.key, true))
+    } catch {
+      if (loadId !== myId) return
+      showFallback(track)
+    }
+  }
+
+  $currentTrack.subscribe(track => {
+    if (!track) return
+    loadTrack(track)
+  })
 </script>
 
   <!-- Swipe derecha para volver a home (móvil) + mostrar/ocultar FAB -->
