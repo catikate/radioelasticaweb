@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro'
 import { MIXCLOUD_USER } from '@/lib/constants'
+import { getCalendar, isNow } from '@/lib/calendar'
 
 export const prerender = false
 
@@ -22,7 +23,14 @@ export const GET: APIRoute = async () => {
     if (!match)  return Response.json({ isLive: false })
 
     const proxyUrl = `/api/live-proxy/${match[1]}`
-    return Response.json({ isLive: true, proxyUrl }, {
+
+    const slots = await getCalendar().catch(() => [])
+    const current = slots.find(s => isNow(s.fecha, s.inicio, s.fin))
+    const currentShow = current
+      ? { programa: current.programa, residente: current.residente }
+      : null
+
+    return Response.json({ isLive: true, proxyUrl, currentShow }, {
       headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=30' },
     })
   } catch {

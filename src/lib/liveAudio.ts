@@ -23,7 +23,12 @@ function getAudio(): HTMLAudioElement | null {
   return el
 }
 
-export function startLivePolling(onStatus: (live: boolean, proxyUrl?: string) => void) {
+export interface CurrentShow {
+  programa:  string
+  residente: string
+}
+
+export function startLivePolling(onStatus: (live: boolean, proxyUrl?: string, currentShow?: CurrentShow | null) => void) {
   getAudio()
   if (_pollId) return
 
@@ -33,7 +38,7 @@ export function startLivePolling(onStatus: (live: boolean, proxyUrl?: string) =>
       const res  = await fetch('/api/live-url')
       const data = await res.json()
       $liveOnAir.set(data.isLive === true)
-      onStatus(data.isLive === true, data.proxyUrl)
+      onStatus(data.isLive === true, data.proxyUrl, data.currentShow ?? null)
     } catch {
       $liveOnAir.set(false)
       onStatus(false)
