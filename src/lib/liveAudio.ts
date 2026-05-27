@@ -1,5 +1,6 @@
 import Hls from 'hls.js'
 import { $liveOnAir, $liveStatus } from './store'
+import { EMISSION } from './constants'
 
 let _audio: HTMLAudioElement | null = null
 let _hls:   Hls | null = null
@@ -28,12 +29,38 @@ export interface CurrentShow {
   residente: string
 }
 
+function isWithinBroadcastWindow(): boolean {
+  const now   = new Date()
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Europe/Madrid',
+    weekday:  'short',
+    hour:     'numeric',
+    minute:   'numeric',
+    hour12:   false,
+  }).formatToParts(now)
+
+  const dayStr = parts.find(p => p.type === 'weekday')?.value ?? ''
+  const hour   = parseInt(parts.find(p => p.type === 'hour')?.value   ?? '0', 10)
+  const minute = parseInt(parts.find(p => p.type === 'minute')?.value ?? '0', 10)
+
+  if (dayStr !== 'Wed') return false
+
+  const mins        = hour * 60 + minute
+  const windowStart = EMISSION.START_H * 60 + EMISSION.START_M - 30  // 10:41
+  const windowEnd   = EMISSION.END_H   * 60 + EMISSION.END_M   + 30  // 13:43
+  return mins >= windowStart && mins <= windowEnd
+}
+
 export function startLivePolling(onStatus: (live: boolean, proxyUrl?: string, currentShow?: CurrentShow | null) => void) {
   getAudio()
   if (_pollId) return
 
   async function poll() {
     if (document.visibilityState === 'hidden') return
+    if (!isWithinBroadcastWindow()) {
+      onStatus(false)
+      return
+    }
     try {
       const res  = await fetch('/api/live-url')
       const data = await res.json()

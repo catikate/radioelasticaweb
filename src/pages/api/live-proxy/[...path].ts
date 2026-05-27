@@ -44,7 +44,9 @@ export const GET: APIRoute = async ({ params, request }) => {
   const contentType = res.headers.get('Content-Type') ?? 'application/octet-stream'
   // Segments (.ts) are immutable — cache aggressively. Manifests (.m3u8) change every few seconds.
   const isSegment   = fullPath.endsWith('.ts')
-  const cacheHeader = isSegment ? 'public, max-age=3600, immutable' : 'no-cache, no-store'
+  const cacheHeader = isSegment
+    ? 'public, max-age=3600, immutable'
+    : 'public, s-maxage=8, stale-while-revalidate=4'
   const responseHeaders: Record<string, string> = {
     ...CORS,
     'Content-Type':  contentType,

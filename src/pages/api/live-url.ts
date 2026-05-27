@@ -31,11 +31,11 @@ export const GET: APIRoute = async () => {
       : null
 
     return Response.json({ isLive: true, proxyUrl, currentShow }, {
-      headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=30' },
+      headers: { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=60' },
     })
   } catch {
     return Response.json({ isLive: false }, {
-      headers: { 'Cache-Control': 'public, s-maxage=60, stale-while-revalidate=30' },
+      headers: { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=60' },
     })
   }
 }
