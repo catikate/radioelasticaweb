@@ -22,7 +22,7 @@ export const GET: APIRoute = async () => {
     const match = html.match(CDN_PATTERN)
     if (!match)  return Response.json({ isLive: false })
 
-    const proxyUrl = `/api/live-proxy/${match[1]}`
+    const proxyUrl = `https://radioelastica-proxy.catalinaviscoitaliano.workers.dev/${match[1]}`
 
     const slots = await getCalendar().catch(() => [])
     const current = slots.find(s => isNow(s.fecha, s.inicio, s.fin))
