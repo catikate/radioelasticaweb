@@ -46,7 +46,7 @@ export const GET: APIRoute = async ({ params, request }) => {
   const isSegment   = fullPath.endsWith('.ts')
   const cacheHeader = isSegment
     ? 'public, max-age=3600, immutable'
-    : 'public, s-maxage=8, stale-while-revalidate=4'
+    : 'no-cache, no-store'
   const responseHeaders: Record<string, string> = {
     ...CORS,
     'Content-Type':  contentType,
