@@ -3,8 +3,6 @@ import '../styles/global.css'
 import { ViewTransitions } from 'astro:transitions'
 import Navbar     from '@/components/layout/Navbar.astro'
 import LivePlayer  from '@/components/player/LivePlayer'
-import { getLatestCloudcast } from '@/lib/mixcloud'
-import { widgetSrc } from '@/lib/mixcloud'
 
 interface Props {
   title?:       string
@@ -19,8 +17,6 @@ const {
 } = Astro.props
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://radioelastica.com')
-const latest = await getLatestCloudcast()
-const initialSrc = latest?.key ? widgetSrc(latest.key) : null
 ---
 
 <!doctype html>
@@ -92,8 +88,9 @@ const initialSrc = latest?.key ? widgetSrc(latest.key) : null
 
 <!-- REPRODUCTOR — creado imperativament fuera de <body> para que el swap
      de Astro View Transitions nunca lo toque. Los iframes se reinician al
-     salir del DOM; viviendo en <html> (no en <body>) nunca se desconectan. -->
-<script is:inline define:vars={{ initialSrc }}>
+     salir del DOM; viviendo en <html> (no en <body>) nunca se desconectan.
+     Hidden hasta el primer click en un episodio. -->
+<script is:inline>
   (function () {
     if (document.getElementById('player-bar')) return;
 
@@ -102,19 +99,10 @@ const initialSrc = latest?.key ? widgetSrc(latest.key) : null
     bar.style.cssText = [
       'position:fixed', 'bottom:0', 'left:0', 'right:0',
       'height:84px', 'z-index:50',
-      'display:flex', 'align-items:center',
+      'display:none', 'align-items:center',
       'background:#1a1a2e',
       'border-top:2px solid #3878F5',
     ].join(';');
-
-    if (initialSrc) {
-      var iframe = document.createElement('iframe');
-      iframe.id    = 'mc-widget';
-      iframe.src   = initialSrc;
-      iframe.allow = 'autoplay';
-      iframe.style.cssText = 'width:100%;height:62px;border:none;';
-      bar.appendChild(iframe);
-    }
 
     document.documentElement.appendChild(bar);
   })();
@@ -140,6 +128,8 @@ const initialSrc = latest?.key ? widgetSrc(latest.key) : null
   function showIframe(src: string) {
     const bar = getBar()
     if (!bar) return
+    bar.style.display = 'flex'
+    document.documentElement.style.setProperty('--player-h', '84px')
     document.getElementById('mc-fallback')?.remove()
     let iframe = getIframe()
     if (iframe) {
@@ -159,6 +149,8 @@ const initialSrc = latest?.key ? widgetSrc(latest.key) : null
     const bar    = getBar()
     const iframe = getIframe()
     if (!bar) return
+    bar.style.display = 'flex'
+    document.documentElement.style.setProperty('--player-h', '84px')
     if (iframe) iframe.style.display = 'none'
     document.getElementById('mc-fallback')?.remove()
 

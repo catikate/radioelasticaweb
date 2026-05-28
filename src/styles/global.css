@@ -5,6 +5,7 @@
 @layer base {
   :root {
     --live-h: 0px;
+    --player-h: 0px;
   }
 
   /* El scroll ocurre en el contenido, no en la página */
@@ -20,10 +21,10 @@
 
   /* Zona de contenido scrolleable entre nav y reproductor */
   #content {
-    height: calc(100vh - 136px - var(--live-h) - 84px);
-    height: calc(100dvh - 136px - var(--live-h) - 84px); /* dvh accounts for mobile browser chrome */
+    height: calc(100vh - 136px - var(--live-h) - var(--player-h));
+    height: calc(100dvh - 136px - var(--live-h) - var(--player-h)); /* dvh accounts for mobile browser chrome */
     margin-top: calc(136px + var(--live-h));
-    margin-bottom: 84px;
+    margin-bottom: var(--player-h);
     overflow-y: auto;
     overflow-x: hidden;
     scroll-behavior: smooth;
