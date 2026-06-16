@@ -75,13 +75,36 @@ export function formatFecha(fecha: string): string {
   })
 }
 
+// Zona horaria de la emisora — las horas del Sheet son hora de Barcelona
+const TZ = 'Europe/Madrid'
+
+// Hora actual en Madrid como clave comparable "YYYY-MM-DDTHH:MM".
+// Independiente del huso del servidor (la API corre en UTC).
+function madridNowKey(): string {
+  const p = Object.fromEntries(
+    new Intl.DateTimeFormat('en-GB', {
+      timeZone: TZ,
+      year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', hour12: false,
+    }).formatToParts(new Date()).map(x => [x.type, x.value])
+  )
+  const hour = p.hour === '24' ? '00' : p.hour  // Intl puede devolver "24" a medianoche
+  return `${p.year}-${p.month}-${p.day}T${hour}:${p.minute}`
+}
+
+// Normaliza "9:5" → "09:05" para que la comparación lexicográfica sea válida
+function normTime(t: string): string {
+  const [h, m = '00'] = t.split(':')
+  return `${h.padStart(2, '0')}:${m.padStart(2, '0')}`
+}
+
 // Devuelve true si la fecha ya pasó
 export function isPast(fecha: string, fin: string): boolean {
-  return new Date(`${fecha}T${fin}`) < new Date()
+  return madridNowKey() >= `${fecha}T${normTime(fin)}`
 }
 
 // Devuelve true si está emitiendo ahora mismo
 export function isNow(fecha: string, inicio: string, fin: string): boolean {
-  const now = new Date()
-  return now >= new Date(`${fecha}T${inicio}`) && now < new Date(`${fecha}T${fin}`)
+  const now = madridNowKey()
+  return now >= `${fecha}T${normTime(inicio)}` && now < `${fecha}T${normTime(fin)}`
 }

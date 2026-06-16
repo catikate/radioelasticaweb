@@ -26,7 +26,14 @@ export default function LivePlayer() {
   }, [])
 
   useEffect(() => {
-    document.documentElement.style.setProperty('--live-h', isLive ? LIVE_H : '0px')
+    // Astro ViewTransitions copia los atributos de <html> de la página entrante,
+    // borrando este inline style. Como el island es transition:persist y isLive
+    // no cambia, el efecto no se re-ejecuta solo → lo re-aplicamos tras cada swap.
+    const apply = () =>
+      document.documentElement.style.setProperty('--live-h', isLive ? LIVE_H : '0px')
+    apply()
+    document.addEventListener('astro:after-swap', apply)
+    return () => document.removeEventListener('astro:after-swap', apply)
   }, [isLive])
 
   function handlePlay() {
