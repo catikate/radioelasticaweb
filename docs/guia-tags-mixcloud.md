@@ -9,11 +9,34 @@
 
 ## Que tags poner
 
-Cada episodio necesita entre 2 y 3 tags. Siempre en minusculas y con guiones.
+Cada episodio lleva SIEMPRE dos tags principales + la temporada: el tag del
+PROGRAMA (que show es) y el tag de RESIDENTE (quien lo hace). Siempre en
+minusculas y con guiones.
 
-### 1. Tu tag de residente (siempre)
+### 1. El tag del programa (SIEMPRE)
 
-Ponelo en TODOS tus episodios, sin importar el programa:
+Identifica el SHOW. Es lo que hace que el episodio aparezca en la pagina de ese
+show. Ponelo en todos los episodios, sea el programa que sea:
+
+| Programa | Tag |
+|----------|-----|
+| Sentimientos Encontrados | `programa-sentimientos-encontrados` |
+| Sesiones Multipotenciales | `programa-sesiones-multipotenciales` |
+| Los Fantasmas de Mi Vida | `programa-los-fantasmas-de-mi-vida` |
+| Metalico Espejado | `programa-metalico-espejado` |
+| Notas de Voz | `programa-notas-de-voz` |
+| Peaje al Paraiso | `programa-peaje-al-paraiso` |
+| Siento Esto | `programa-siento-esto` |
+| Tante Buone Cose | `programa-tante-buone-cose` |
+| Sintonia Variable | `programa-sintonia-variable` |
+| Fantasias Graficas | `programa-fantasias-graficas` |
+| Una Manana Elastica | `programa-manana-elastica` |
+| Un Lugar Llamado | `programa-un-lugar-llamado` |
+
+### 2. Tu tag de residente (SIEMPRE que seas residente)
+
+Identifica a la PERSONA. Hace que el episodio aparezca en tu pagina de residente
+— incluyendo cuando participas como invitada en el show de otrx.
 
 | Residente | Tag |
 |-----------|-----|
@@ -27,18 +50,9 @@ Ponelo en TODOS tus episodios, sin importar el programa:
 | Petra y Ashasha | `residente-petra-y-ashasha` |
 | Franco D' | `residente-franco-d` |
 
-### 2. El tag del programa (solo si aplica)
-
-Si participas en un programa rotativo o tenes mas de un programa, agrega tambien el tag del programa:
-
-| Programa | Tag |
-|----------|-----|
-| Metalico Espejado | `programa-metalico-espejado` |
-| Fantasias Graficas | `programa-fantasias-graficas` |
-| Una Manana Elastica | `programa-manana-elastica` |
-| Un Lugar Llamado | `programa-un-lugar-llamado` |
-
-Los programas con residente unica (Sentimientos Encontrados, Sesiones Multipotenciales, Los Fantasmas de Mi Vida, Notas de Voz, Peaje al Paraiso, Siento Esto, Tante Buone Cose, Sintonia Variable) NO necesitan tag de programa — el tag de residente es suficiente.
+Los shows rotativos (Fantasias Graficas, Una Manana Elastica, Un Lugar Llamado)
+los conduce gente distinta cada vez: van con el tag del programa y, si quien
+conduce es residente, tambien su tag de residente + `guest`.
 
 ### 3. Temporada (siempre)
 
@@ -46,23 +60,24 @@ Agrega `temporada-1` a todos los episodios.
 
 ### 4. Invitadas (cuando aplica)
 
-Si es una invitada (no residente), agrega `guest`.
+Si conduces o participas en un show que no es el tuyo, agrega `guest` (ademas de
+tu tag de residente).
 
 ## Ejemplos
 
 | Situacion | Tags |
 |-----------|------|
-| Draga sube un Sentimientos Encontrados | `residente-draga`, `temporada-1` |
-| Juli Kova sube un Sesiones Multipotenciales | `residente-juli-kova`, `temporada-1` |
-| Lafat sube un Metalico Espejado | `residente-lafat-bordieu`, `programa-metalico-espejado`, `temporada-1` |
-| Lafat conduce Una Manana Elastica | `residente-lafat-bordieu`, `programa-manana-elastica`, `temporada-1` |
-| Lafat sube un Fantasias Graficas | `programa-fantasias-graficas`, `temporada-1` |
-| Una invitada conduce Una Manana Elastica | `programa-manana-elastica`, `guest`, `temporada-1` |
-| Una invitada conduce Un Lugar Llamado | `programa-un-lugar-llamado`, `guest`, `temporada-1` |
+| Draga sube un Sentimientos Encontrados | `programa-sentimientos-encontrados`, `residente-draga`, `temporada-1` |
+| Cati Kate sube un Los Fantasmas de Mi Vida | `programa-los-fantasmas-de-mi-vida`, `residente-cati-kate`, `temporada-1` |
+| Petra y Ashasha suben un Tante Buone Cose | `programa-tante-buone-cose`, `residente-petra-y-ashasha`, `temporada-1` |
+| Lafat sube un Metalico Espejado | `programa-metalico-espejado`, `residente-lafat-bordieu`, `temporada-1` |
+| Cati Kate invitada en Una Manana Elastica | `programa-manana-elastica`, `residente-cati-kate`, `guest`, `temporada-1` |
+| Una invitada (no residente) conduce Un Lugar Llamado | `programa-un-lugar-llamado`, `guest`, `temporada-1` |
 
 ## Importante
 
 - **No inventes tags nuevos** sin avisar — la web no los reconoce y el episodio no aparece donde deberia
+- **No te olvides el tag de programa** — sin el, el episodio no aparece en la pagina del show
 - **No te olvides el tag de residente** — sin el, el episodio no aparece en tu pagina de residente
 - **La mayuscula/minuscula no importa** — Mixcloud lo normaliza, pero por consistencia escribilos en minuscula
 - **Los episodios se cargan al construir la web (no en tiempo real).** Despues de subir o editar tags en Mixcloud, hay que **actualizar la web** (boton de deploy / `actualizar-web.html`) para que el episodio aparezca. Puede tardar unos minutos en terminar el build.

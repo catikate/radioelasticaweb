@@ -60,19 +60,30 @@ export const PLAYER_COPY = {
 // anteriores en Mixcloud manualmente.
 //
 // REGLA GENERAL — cada episodio lleva:
-//   1. residente-{slug}       si tiene residente fija
-//   2. programa-{slug}        si es formato rotativo O tiene dos programas
+//   1. programa-{slug}        SIEMPRE — identifica el show
+//   2. residente-{slug}       si lo conduce una residente fija (o como invitada)
 //   3. género musical         techno, ambient, pop, etc.
 //   4. temporada-1            para filtrar por temporada en el futuro
+//
+// POR QUÉ dos tags separados:
+//   - programa-{slug}  → la página del SHOW muestra SOLO episodios de ese show
+//   - residente-{slug} → la página de la RESIDENTE reúne TODOS sus episodios,
+//                        incluyendo sus participaciones como invitada en otros
+//                        shows (sección "Otras participaciones")
+//
+//   Ej: Cati Kate invitada en Una Mañana Elástica lleva:
+//       programa-manana-elastica + residente-cati-kate + guest + temporada-1
+//       → aparece en la página de Una Mañana Elástica (por el programa)
+//       → y en la de Cati Kate como "Otra participación" (por la residente)
 // ------------------------------------------------------------
 
-// Programas con residente fija
-// El tag del residente es suficiente para identificar el programa
+// Residentes — identifican a la PERSONA (para su página de residente).
+// No basta para identificar el show: usar siempre también el tag de programa.
 export const TAGS_RESIDENTES = {
   draga:          'residente-draga',
   juliKova:       'residente-juli-kova',
   catiKate:       'residente-cati-kate',
-  lafatBordieu:   'residente-lafat-bordieu',  // solo para Metálico Espejado
+  lafatBordieu:   'residente-lafat-bordieu',
   mil919:         'residente-1919',
   isovel:         'residente-isovel',
   valenMiau:      'residente-valen-miau',
@@ -80,13 +91,23 @@ export const TAGS_RESIDENTES = {
   francoD:        'residente-franco-d',
 } as const
 
-// Programas de formato rotativo (el conductor puede cambiar)
-// Se identifican por el programa, no por la persona
+// Programas — identifican cada SHOW (uno por show, SIEMPRE).
+// La página de cada show filtra los episodios por este tag.
 export const TAGS_PROGRAMAS = {
-  fantasiasGraficas:  'programa-fantasias-graficas',  // conduce Lafat ahora, puede cambiar
-  unaMananaElastica:  'programa-manana-elastica',      // anfitrión diferente cada episodio
-  metalicoEspejado:   'programa-metalico-espejado',    // segundo tag para Lafat
-  unLugarLlamado:     'programa-un-lugar-llamado',     // invitadx diferente cada episodio
+  // Shows con residente fija
+  sentimientosEncontrados:  'programa-sentimientos-encontrados',
+  sesionesMultipotenciales: 'programa-sesiones-multipotenciales',
+  losFantasmasDeMiVida:     'programa-los-fantasmas-de-mi-vida',
+  metalicoEspejado:         'programa-metalico-espejado',
+  notasDeVoz:               'programa-notas-de-voz',
+  peajeAlParaiso:           'programa-peaje-al-paraiso',
+  sientoEsto:               'programa-siento-esto',
+  tanteBuoneCose:           'programa-tante-buone-cose',
+  sintoniaVariable:         'programa-sintonia-variable',
+  // Shows de formato rotativo (el conductor cambia cada episodio)
+  fantasiasGraficas:        'programa-fantasias-graficas',
+  unaMananaElastica:        'programa-manana-elastica',
+  unLugarLlamado:           'programa-un-lugar-llamado',
 } as const
 
 // Tag para guests (no residentes fijas)
@@ -134,7 +155,7 @@ export const PROGRAMAS = [
     programa:       'Sentimientos Encontrados',
     residente:      'Draga',
     tipo:           'residente' as const,
-    tags:           [TAGS_RESIDENTES.draga, TAG_TEMPORADA],
+    tags:           [TAGS_RESIDENTES.draga, TAGS_PROGRAMAS.sentimientosEncontrados, TAG_TEMPORADA],
     descripcion:    'El crossover entre literatura y música. Palabra hablada, análisis de lyrics, salseo. Entrevistas a artistas que han indagado este cruce. Poesía, joyas ocultas y temazos.',
     descripcionImg: '/assets/programas/desc/sentimientos-encontrados.png',
     foto:           '/assets/programas/sentimientos-encontrados.png',
@@ -146,7 +167,7 @@ export const PROGRAMAS = [
     programa:       'Sesiones Multipotenciales',
     residente:      'Juli Kova',
     tipo:           'residente' as const,
-    tags:           [TAGS_RESIDENTES.juliKova, TAG_TEMPORADA],
+    tags:           [TAGS_RESIDENTES.juliKova, TAGS_PROGRAMAS.sesionesMultipotenciales, TAG_TEMPORADA],
     descripcion:    'En tiempos de extremismos, celebremos el eclecticismo. Un espacio sonoro para viajar por líneas de bajo hipnóticas, girls to the front, post-punk, dub, indie, pop, géneros híbridos, oldies y rarezas.',
     descripcionImg: '/assets/programas/desc/sesiones-multipotenciales.png',
     foto:           '/assets/programas/sesiones-multipotenciales.png',
@@ -158,7 +179,7 @@ export const PROGRAMAS = [
     programa:       'Los Fantasmas de Mi Vida',
     residente:      'Cati Kate',
     tipo:           'residente' as const,
-    tags:           [TAGS_RESIDENTES.catiKate, TAG_TEMPORADA],
+    tags:           [TAGS_RESIDENTES.catiKate, TAGS_PROGRAMAS.losFantasmasDeMiVida, TAG_TEMPORADA],
     descripcion:    'Canciones que no suenan, aparecen. La música como duelo compartido y celebración extraña. El mapa de un presente que mira hacia atrás. Y ahí, entre los fantasmas, también se baila.',
     descripcionImg: '/assets/programas/desc/los-fantasmas-de-mi-vida.png',
     foto:           '/assets/programas/los-fantasmas-de-mi-vida.png',
@@ -183,7 +204,7 @@ export const PROGRAMAS = [
     programa:       'Notas de Voz',
     residente:      '1919',
     tipo:           'residente' as const,
-    tags:           [TAGS_RESIDENTES.mil919, TAG_TEMPORADA],
+    tags:           [TAGS_RESIDENTES.mil919, TAGS_PROGRAMAS.notasDeVoz, TAG_TEMPORADA],
     descripcion:    'Un viaje poco lineal de notas de audio, shitposting narrado, canciones y sentimentalismo. De la imagen a la voz, contenido extraído de archivos de internet y lo que pasa a través de un móvil.',
     descripcionImg: '/assets/programas/desc/notas-de-voz.png',
     foto:           '/assets/programas/notas-de-voz.png',
@@ -210,6 +231,7 @@ export const PROGRAMAS = [
     tipo:        'rotativo' as const,
     tags:        [TAGS_PROGRAMAS.unaMananaElastica, TAG_TEMPORADA],
     descripcion: 'Show libre donde cada episodio tiene unx anfitrión diferente que deleita con una hora de su selección musical para amenizar la mañana. Un espacio flexible para nuestras amigas.',
+    descripcionImg: '/assets/programas/desc/una-manana-elastica.png',
     foto:        '/assets/programas/una-manana-elastica.png',
     temporada:   1,
   },
@@ -219,8 +241,9 @@ export const PROGRAMAS = [
     programa:    'Peaje al Paraíso',
     residente:   'Isovel',
     tipo:        'residente' as const,
-    tags:        [TAGS_RESIDENTES.isovel, TAG_TEMPORADA],
+    tags:        [TAGS_RESIDENTES.isovel, TAGS_PROGRAMAS.peajeAlParaiso, TAG_TEMPORADA],
     descripcion: 'Estamos yendo, sí, ya casi llegamos. Ese lugar que nos fue prohibido tiene una puerta, yo lo sé. Soy otra pagando el precio de estar viva, cada vez más cerca de lo divino. Mezcla música con literatura, palabras que son rezos (paganos, claro).',
+    descripcionImg: '/assets/programas/desc/peaje-al-paraiso.png',
     foto:        '/assets/programas/peaje-al-paraiso.png',
     temporada:   1,
   },
@@ -230,8 +253,9 @@ export const PROGRAMAS = [
     programa:    'Siento Esto',
     residente:   'Valen Miau',
     tipo:        'residente' as const,
-    tags:        [TAGS_RESIDENTES.valenMiau, TAG_TEMPORADA],
+    tags:        [TAGS_RESIDENTES.valenMiau, TAGS_PROGRAMAS.sientoEsto, TAG_TEMPORADA],
     descripcion: 'Un recorrido por las entradas de diarios íntimos escritos durante los años de migración. De manera oracular y azarosa, se comparten algunos procesos de sensaciones vividas proponiendo a la escritura como catarsis. Entre vómitos viscerales, recuerdos y confesiones, la idea es expandir el relato junto a la música, conectándola con sus historias y sentimientos.',
+    descripcionImg: '/assets/programas/desc/siento-esto.png',
     foto:        '/assets/programas/siento-esto.png',
     temporada:   1,
   },
@@ -241,8 +265,9 @@ export const PROGRAMAS = [
     programa:    'Tante Buone Cose',
     residente:   'Petra y Ashasha',
     tipo:        'residente' as const,
-    tags:        [TAGS_RESIDENTES.petraAshasha, TAG_TEMPORADA],
+    tags:        [TAGS_RESIDENTES.petraAshasha, TAGS_PROGRAMAS.tanteBuoneCose, TAG_TEMPORADA],
     descripcion: 'Queremos escuchar música juntis, imaginarnos escenarios. Que pase el frío, que pase el calor. Que pasen los minutos, las horas, los programas en la radio. Queremos hablar de música para no hablar de gatitos. Hablar de música para hablar del fin del mundo. Compartir una hora con alguien que no vemos. Agradecerle a la tecnología y después arrepentirnos. Desear la espera y después arrepentirnos. Elegir canciones, que sean tantas y que sean buenas y que seamos felices.',
+    descripcionImg: '/assets/programas/desc/tante-buone-cose.png',
     foto:        '/assets/programas/tante-buone-cose.png',
     temporada:   1,
   },
@@ -254,6 +279,7 @@ export const PROGRAMAS = [
     tipo:        'rotativo' as const,
     tags:        [TAGS_PROGRAMAS.unLugarLlamado, TAG_TEMPORADA],
     descripcion: 'En cada episodio, una persona invitada nos mostrará música de un lugar en específico, ya sea un país, un territorio, un paisaje o un espacio. Así, cada capítulo se transformará en un viaje sonoro por ese lugar, casi como un soundtrack ambiental de ese sitio.',
+    descripcionImg: '/assets/programas/desc/un-lugar-llamado.png',
     foto:        '/assets/programas/un-lugar-llamado.png',
     temporada:   1,
   },
@@ -263,8 +289,9 @@ export const PROGRAMAS = [
     programa:    'Sintonía Variable',
     residente:   "Franco D'",
     tipo:        'residente' as const,
-    tags:        [TAGS_RESIDENTES.francoD, TAG_TEMPORADA],
+    tags:        [TAGS_RESIDENTES.francoD, TAGS_PROGRAMAS.sintoniaVariable, TAG_TEMPORADA],
     descripcion: "Desde Buenos Aires (Argentina) Lacura crew lleva su imaginario a la radio. Sintonía Variable es un programa para construir y compartir mundos sonoros. Comandado por Franco D' con invitados especiales en un espacio abierto de emisiones eclécticas, afectivas y experimentales. Un viaje a través de los sonidos que más atesoramos ahí donde podemos perdernos y encontrarnos.",
+    descripcionImg: '/assets/programas/desc/sintonia-variable.png',
     foto:        '/assets/programas/sintonia-variable.png',
     temporada:   1,
   },

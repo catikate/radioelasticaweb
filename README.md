@@ -113,7 +113,7 @@ Programmes are defined in `src/lib/constants.ts` in the `PROGRAMAS` array:
   programa:    'Programme Name',
   residente:   'DJ Name',
   tipo:        'residente',        // 'residente' or 'rotativo'
-  tags:        [TAGS_RESIDENTES.xxx, TAG_TEMPORADA],
+  tags:        [TAGS_RESIDENTES.xxx, TAGS_PROGRAMAS.xxx, TAG_TEMPORADA],  // rotativo: [TAGS_PROGRAMAS.xxx, TAG_TEMPORADA]
   descripcion: 'Programme description.',
   foto:        '/assets/programas/slug.jpg',
   temporada:   1,
@@ -126,10 +126,12 @@ Every episode requires the following tags to appear on the site:
 
 | Tag | When to use |
 |---|---|
-| `residente-{name}` | Always — identifies the resident |
-| `programa-{name}` | For rotating programmes or residents with multiple shows |
+| `programa-{slug}` | **Always** — identifies the show. Each show's page filters by this tag, so it shows only that show's episodes. |
+| `residente-{slug}` | When a fixed resident hosts (or guests on another show). Powers the resident's page, including their "Otras participaciones". |
 | `temporada-1` | Always |
-| `guest` | When the host is a guest, not a resident |
+| `guest` | When hosting/guesting on a show that isn't your own |
+
+**Why two tags:** the `programa-` tag routes an episode to its show page; the `residente-` tag routes it to the resident's page. A resident guesting on another show tags both, so the episode appears on that show's page *and* under the resident's "Otras participaciones".
 
 Resident tags:
 
@@ -145,11 +147,19 @@ Resident tags:
 | Petra y Ashasha | `residente-petra-y-ashasha` |
 | Franco D' | `residente-franco-d` |
 
-Programme tags (for rotating formats):
+Programme tags (one per show, always required):
 
 | Programme | Tag |
 |---|---|
+| Sentimientos Encontrados | `programa-sentimientos-encontrados` |
+| Sesiones Multipotenciales | `programa-sesiones-multipotenciales` |
+| Los Fantasmas de Mi Vida | `programa-los-fantasmas-de-mi-vida` |
 | Metálico Espejado | `programa-metalico-espejado` |
+| Notas de Voz | `programa-notas-de-voz` |
+| Peaje al Paraíso | `programa-peaje-al-paraiso` |
+| Siento Esto | `programa-siento-esto` |
+| Tante Buone Cose | `programa-tante-buone-cose` |
+| Sintonía Variable | `programa-sintonia-variable` |
 | Fantasías Gráficas | `programa-fantasias-graficas` |
 | Una Mañana Elástica | `programa-manana-elastica` |
 | Un Lugar Llamado… | `programa-un-lugar-llamado` |
