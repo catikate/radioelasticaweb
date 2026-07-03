@@ -22,6 +22,10 @@ Ponelo en TODOS tus episodios, sin importar el programa:
 | Cati Kate | `residente-cati-kate` |
 | Lafat Bordieu | `residente-lafat-bordieu` |
 | 1919 | `residente-1919` |
+| Isovel | `residente-isovel` |
+| Valen Miau | `residente-valen-miau` |
+| Petra y Ashasha | `residente-petra-y-ashasha` |
+| Franco D' | `residente-franco-d` |
 
 ### 2. El tag del programa (solo si aplica)
 
@@ -32,8 +36,9 @@ Si participas en un programa rotativo o tenes mas de un programa, agrega tambien
 | Metalico Espejado | `programa-metalico-espejado` |
 | Fantasias Graficas | `programa-fantasias-graficas` |
 | Una Manana Elastica | `programa-manana-elastica` |
+| Un Lugar Llamado | `programa-un-lugar-llamado` |
 
-Los programas con residente unica (Sentimientos Encontrados, Sesiones Multipotenciales, Los Fantasmas de Mi Vida, Notas de Voz) NO necesitan tag de programa — el tag de residente es suficiente.
+Los programas con residente unica (Sentimientos Encontrados, Sesiones Multipotenciales, Los Fantasmas de Mi Vida, Notas de Voz, Peaje al Paraiso, Siento Esto, Tante Buone Cose, Sintonia Variable) NO necesitan tag de programa — el tag de residente es suficiente.
 
 ### 3. Temporada (siempre)
 
@@ -53,10 +58,12 @@ Si es una invitada (no residente), agrega `guest`.
 | Lafat conduce Una Manana Elastica | `residente-lafat-bordieu`, `programa-manana-elastica`, `temporada-1` |
 | Lafat sube un Fantasias Graficas | `programa-fantasias-graficas`, `temporada-1` |
 | Una invitada conduce Una Manana Elastica | `programa-manana-elastica`, `guest`, `temporada-1` |
+| Una invitada conduce Un Lugar Llamado | `programa-un-lugar-llamado`, `guest`, `temporada-1` |
 
 ## Importante
 
 - **No inventes tags nuevos** sin avisar — la web no los reconoce y el episodio no aparece donde deberia
 - **No te olvides el tag de residente** — sin el, el episodio no aparece en tu pagina de residente
 - **La mayuscula/minuscula no importa** — Mixcloud lo normaliza, pero por consistencia escribilos en minuscula
-- **Si editas los tags despues de subir**, los cambios se reflejan en la web automaticamente (puede tardar unos minutos por cache)
+- **Los episodios se cargan al construir la web (no en tiempo real).** Despues de subir o editar tags en Mixcloud, hay que **actualizar la web** (boton de deploy / `actualizar-web.html`) para que el episodio aparezca. Puede tardar unos minutos en terminar el build.
+- **La web solo lee los ultimos 100 episodios** de la cuenta al construirse — episodios muy viejos podrian no aparecer.

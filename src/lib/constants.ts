@@ -74,6 +74,10 @@ export const TAGS_RESIDENTES = {
   catiKate:       'residente-cati-kate',
   lafatBordieu:   'residente-lafat-bordieu',  // solo para Metálico Espejado
   mil919:         'residente-1919',
+  isovel:         'residente-isovel',
+  valenMiau:      'residente-valen-miau',
+  petraAshasha:   'residente-petra-y-ashasha',
+  francoD:        'residente-franco-d',
 } as const
 
 // Programas de formato rotativo (el conductor puede cambiar)
@@ -82,6 +86,7 @@ export const TAGS_PROGRAMAS = {
   fantasiasGraficas:  'programa-fantasias-graficas',  // conduce Lafat ahora, puede cambiar
   unaMananaElastica:  'programa-manana-elastica',      // anfitrión diferente cada episodio
   metalicoEspejado:   'programa-metalico-espejado',    // segundo tag para Lafat
+  unLugarLlamado:     'programa-un-lugar-llamado',     // invitadx diferente cada episodio
 } as const
 
 // Tag para guests (no residentes fijas)
@@ -208,6 +213,61 @@ export const PROGRAMAS = [
     foto:        '/assets/programas/una-manana-elastica.png',
     temporada:   1,
   },
+  {
+    slug:        'peaje-al-paraiso',
+    titulo:      'Peaje al Paraíso w/ Isovel',
+    programa:    'Peaje al Paraíso',
+    residente:   'Isovel',
+    tipo:        'residente' as const,
+    tags:        [TAGS_RESIDENTES.isovel, TAG_TEMPORADA],
+    descripcion: 'Estamos yendo, sí, ya casi llegamos. Ese lugar que nos fue prohibido tiene una puerta, yo lo sé. Soy otra pagando el precio de estar viva, cada vez más cerca de lo divino. Mezcla música con literatura, palabras que son rezos (paganos, claro).',
+    foto:        '/assets/programas/peaje-al-paraiso.png',
+    temporada:   1,
+  },
+  {
+    slug:        'siento-esto',
+    titulo:      'Siento Esto w/ Valen Miau',
+    programa:    'Siento Esto',
+    residente:   'Valen Miau',
+    tipo:        'residente' as const,
+    tags:        [TAGS_RESIDENTES.valenMiau, TAG_TEMPORADA],
+    descripcion: 'Un recorrido por las entradas de diarios íntimos escritos durante los años de migración. De manera oracular y azarosa, se comparten algunos procesos de sensaciones vividas proponiendo a la escritura como catarsis. Entre vómitos viscerales, recuerdos y confesiones, la idea es expandir el relato junto a la música, conectándola con sus historias y sentimientos.',
+    foto:        '/assets/programas/siento-esto.png',
+    temporada:   1,
+  },
+  {
+    slug:        'tante-buone-cose',
+    titulo:      'Tante Buone Cose w/ Petra y Ashasha',
+    programa:    'Tante Buone Cose',
+    residente:   'Petra y Ashasha',
+    tipo:        'residente' as const,
+    tags:        [TAGS_RESIDENTES.petraAshasha, TAG_TEMPORADA],
+    descripcion: 'Queremos escuchar música juntis, imaginarnos escenarios. Que pase el frío, que pase el calor. Que pasen los minutos, las horas, los programas en la radio. Queremos hablar de música para no hablar de gatitos. Hablar de música para hablar del fin del mundo. Compartir una hora con alguien que no vemos. Agradecerle a la tecnología y después arrepentirnos. Desear la espera y después arrepentirnos. Elegir canciones, que sean tantas y que sean buenas y que seamos felices.',
+    foto:        '/assets/programas/tante-buone-cose.png',
+    temporada:   1,
+  },
+  {
+    slug:        'un-lugar-llamado',
+    titulo:      'Un Lugar Llamado…',
+    programa:    'Un Lugar Llamado…',
+    residente:   'Varios',
+    tipo:        'rotativo' as const,
+    tags:        [TAGS_PROGRAMAS.unLugarLlamado, TAG_TEMPORADA],
+    descripcion: 'En cada episodio, una persona invitada nos mostrará música de un lugar en específico, ya sea un país, un territorio, un paisaje o un espacio. Así, cada capítulo se transformará en un viaje sonoro por ese lugar, casi como un soundtrack ambiental de ese sitio.',
+    foto:        '/assets/programas/un-lugar-llamado.png',
+    temporada:   1,
+  },
+  {
+    slug:        'sintonia-variable',
+    titulo:      "Sintonía Variable w/ Franco D'",
+    programa:    'Sintonía Variable',
+    residente:   "Franco D'",
+    tipo:        'residente' as const,
+    tags:        [TAGS_RESIDENTES.francoD, TAG_TEMPORADA],
+    descripcion: "Desde Buenos Aires (Argentina) Lacura crew lleva su imaginario a la radio. Sintonía Variable es un programa para construir y compartir mundos sonoros. Comandado por Franco D' con invitados especiales en un espacio abierto de emisiones eclécticas, afectivas y experimentales. Un viaje a través de los sonidos que más atesoramos ahí donde podemos perdernos y encontrarnos.",
+    foto:        '/assets/programas/sintonia-variable.png',
+    temporada:   1,
+  },
 ] as const
 
 // Helper — genera el título en formato canónico
@@ -217,7 +277,13 @@ export function tituloPrograma(programa: string, residente: string): string {
 
 // Helper — convierte un nombre a slug URL-safe
 export function toSlug(name: string): string {
-  return name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, '-')
+  return name
+    .toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')  // quitar acentos
+    .replace(/[^a-z0-9\s-]/g, '')                       // quitar ap\u00f3strofes y otros no url-safe
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')                               // colapsar guiones repetidos
 }
 
 // ------------------------------------------------------------

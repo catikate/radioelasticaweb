@@ -85,6 +85,23 @@ docs/
 
 ## Content management
 
+### Programmes (Temporada 1)
+
+| Programme | Host | Type |
+|---|---|---|
+| Sentimientos Encontrados | Draga | resident |
+| Sesiones Multipotenciales | Juli Kova | resident |
+| Los Fantasmas de Mi Vida | Cati Kate | resident |
+| Metálico Espejado | Lafat Bordieu | resident |
+| Notas de Voz | 1919 | resident |
+| Fantasías Gráficas | Lafat Bordieu | rotating |
+| Una Mañana Elástica | Various | rotating |
+| Peaje al Paraíso | Isovel | resident |
+| Siento Esto | Valen Miau | resident |
+| Tante Buone Cose | Petra y Ashasha | resident |
+| Un Lugar Llamado… | Various | rotating |
+| Sintonía Variable | Franco D' | resident |
+
 ### Adding or editing a programme
 
 Programmes are defined in `src/lib/constants.ts` in the `PROGRAMAS` array:
@@ -123,6 +140,10 @@ Resident tags:
 | Cati Kate | `residente-cati-kate` |
 | Lafat Bordieu | `residente-lafat-bordieu` |
 | 1919 | `residente-1919` |
+| Isovel | `residente-isovel` |
+| Valen Miau | `residente-valen-miau` |
+| Petra y Ashasha | `residente-petra-y-ashasha` |
+| Franco D' | `residente-franco-d` |
 
 Programme tags (for rotating formats):
 
@@ -131,6 +152,7 @@ Programme tags (for rotating formats):
 | Metálico Espejado | `programa-metalico-espejado` |
 | Fantasías Gráficas | `programa-fantasias-graficas` |
 | Una Mañana Elástica | `programa-manana-elastica` |
+| Un Lugar Llamado… | `programa-un-lugar-llamado` |
 
 ### Updating the calendar
 
