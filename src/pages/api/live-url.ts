@@ -5,7 +5,9 @@ import { getCalendar, isNow } from '@/lib/calendar'
 export const prerender = false
 
 const LIVE_PAGE  = `https://www.mixcloud.com/live/${MIXCLOUD_USER}/`
-const CDN_PATTERN = /https:\/\/(live-[a-z0-9-]+\.mixcloud\.com\/hls\/[^\s"\\]+master\.m3u8)/
+// Mixcloud sirve el stream desde live.mixcloud.com (antes live-<region>.mixcloud.com).
+// Aceptamos ambos formatos: host "live" con o sin sufijo de región.
+const CDN_PATTERN = /https:\/\/(live(?:-[a-z0-9-]+)?\.mixcloud\.com\/hls\/[^\s"\\]+master\.m3u8)/
 
 export const GET: APIRoute = async () => {
   try {

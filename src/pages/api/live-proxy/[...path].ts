@@ -2,7 +2,7 @@ import type { APIRoute } from 'astro'
 
 export const prerender = false
 
-const ALLOWED = /^live-[a-z0-9-]+\.mixcloud\.com$/
+const ALLOWED = /^live(-[a-z0-9-]+)?\.mixcloud\.com$/
 
 const CORS = {
   'Access-Control-Allow-Origin':  '*',
