@@ -4,27 +4,36 @@ import { getCalendar, isNow } from '@/lib/calendar'
 
 export const prerender = false
 
-const LIVE_PAGE  = `https://www.mixcloud.com/live/${MIXCLOUD_USER}/`
-// Mixcloud sirve el stream desde live.mixcloud.com (antes live-<region>.mixcloud.com).
-// Aceptamos ambos formatos: host "live" con o sin sufijo de región.
-const CDN_PATTERN = /https:\/\/(live(?:-[a-z0-9-]+)?\.mixcloud\.com\/hls\/[^\s"\\]+master\.m3u8)/
+// www.mixcloud.com/live/<user>/ quedó bloqueada por el WAF de Cloudflare de Mixcloud
+// (403 "Sorry, you have been blocked" para cualquier cliente no-navegador, incluida
+// la función de Netlify). En su lugar usamos su API GraphQL (app.mixcloud.com/graphql),
+// que no está protegida y expone isLive + hlsUrl directamente, sin scraping de HTML.
+const GRAPHQL_ENDPOINT = 'https://app.mixcloud.com/graphql'
+const LIVE_QUERY = `
+  query($u: String!) {
+    userLookup(lookup: { username: $u }) {
+      isLive
+      liveStream { hlsUrl }
+    }
+  }
+`
 
 export const GET: APIRoute = async () => {
   try {
-    const res = await fetch(LIVE_PAGE, {
-      headers: {
-        'User-Agent':      'curl/7.68.0',
-        'Accept':          '*/*',
-        'Accept-Language': 'en-US,en;q=0.9',
-      },
+    const res = await fetch(GRAPHQL_ENDPOINT, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ query: LIVE_QUERY, variables: { u: MIXCLOUD_USER } }),
     })
     if (!res.ok) return Response.json({ isLive: false })
 
-    const html  = await res.text()
-    const match = html.match(CDN_PATTERN)
-    if (!match)  return Response.json({ isLive: false })
+    const json      = await res.json()
+    const userLookup = json?.data?.userLookup
+    const hlsUrl    = userLookup?.isLive ? userLookup?.liveStream?.hlsUrl : null
+    if (!hlsUrl) return Response.json({ isLive: false })
 
-    const proxyUrl = `https://radioelastica-proxy.catalinaviscoitaliano.workers.dev/${match[1]}`
+    // El worker espera host+path sin esquema (ver ALLOWED en radioelastica-proxy).
+    const proxyUrl = `https://radioelastica-proxy.catalinaviscoitaliano.workers.dev/${hlsUrl.replace(/^https:\/\//, '')}`
 
     const slots = await getCalendar().catch(() => [])
     const current = slots.find(s => isNow(s.fecha, s.inicio, s.fin))
