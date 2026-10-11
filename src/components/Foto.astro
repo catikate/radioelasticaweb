@@ -1,0 +1,31 @@
+---
+import { Image } from 'astro:assets'
+import type { ImageMetadata } from 'astro'
+import { FALLBACK_IMG } from '@/lib/images'
+
+interface Props {
+  src:     ImageMetadata | undefined
+  alt:     string
+  widths:  readonly number[]
+  sizes:   string
+  class?:  string
+  eager?:  boolean
+}
+
+const { src, alt, widths, sizes, class: className, eager = false } = Astro.props
+---
+
+{src ? (
+  <Image
+    src={src}
+    alt={alt}
+    width={Math.max(...widths)}
+    widths={[...widths]}
+    sizes={sizes}
+    class={className}
+    loading={eager ? 'eager' : 'lazy'}
+    decoding="async"
+  />
+) : (
+  <img src={FALLBACK_IMG} alt={alt} class={className} loading="lazy" />
+)}

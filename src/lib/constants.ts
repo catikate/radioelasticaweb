@@ -130,14 +130,8 @@ export const COLORS = {
 
 export const ASSETS = {
   logoTransparent: '/assets/logo-sin-fondo.png',
-  logoSquare:      '/assets/logo-square.jpg',
+  logoSquare:      '/assets/logo-square-reducido.jpg',
   logoWide:        '/assets/logo-wide.jpg',
-  navButtons: {
-    programas:  '/assets/nav/programas.png',
-    residentes: '/assets/nav/residentes.png',
-    calendario: '/assets/nav/calendario.png',
-    tienda:     '/assets/nav/tienda.png',
-  },
 } as const
 
 // ------------------------------------------------------------
@@ -157,8 +151,6 @@ export const PROGRAMAS = [
     tipo:           'residente' as const,
     tags:           [TAGS_RESIDENTES.draga, TAGS_PROGRAMAS.sentimientosEncontrados, TAG_TEMPORADA],
     descripcion:    'El crossover entre literatura y música. Palabra hablada, análisis de lyrics, salseo. Entrevistas a artistas que han indagado este cruce. Poesía, joyas ocultas y temazos.',
-    descripcionImg: '/assets/programas/desc/sentimientos-encontrados.png',
-    foto:           '/assets/programas/sentimientos-encontrados.png',
     temporada:      1,
   },
   {
@@ -169,8 +161,6 @@ export const PROGRAMAS = [
     tipo:           'residente' as const,
     tags:           [TAGS_RESIDENTES.juliKova, TAGS_PROGRAMAS.sesionesMultipotenciales, TAG_TEMPORADA],
     descripcion:    'En tiempos de extremismos, celebremos el eclecticismo. Un espacio sonoro para viajar por líneas de bajo hipnóticas, girls to the front, post-punk, dub, indie, pop, géneros híbridos, oldies y rarezas.',
-    descripcionImg: '/assets/programas/desc/sesiones-multipotenciales.png',
-    foto:           '/assets/programas/sesiones-multipotenciales.png',
     temporada:      1,
   },
   {
@@ -181,8 +171,6 @@ export const PROGRAMAS = [
     tipo:           'residente' as const,
     tags:           [TAGS_RESIDENTES.catiKate, TAGS_PROGRAMAS.losFantasmasDeMiVida, TAG_TEMPORADA],
     descripcion:    'Canciones que no suenan, aparecen. La música como duelo compartido y celebración extraña. El mapa de un presente que mira hacia atrás. Y ahí, entre los fantasmas, también se baila.',
-    descripcionImg: '/assets/programas/desc/los-fantasmas-de-mi-vida.png',
-    foto:           '/assets/programas/los-fantasmas-de-mi-vida.png',
     temporada:      1,
   },
   {
@@ -194,8 +182,6 @@ export const PROGRAMAS = [
     // Dos tags: residente + programa — para distinguirlo de Fantasías Gráficas
     tags:           [TAGS_RESIDENTES.lafatBordieu, TAGS_PROGRAMAS.metalicoEspejado, TAG_TEMPORADA],
     descripcion:    'Musicalizado solo con CDs. Un tributo al increíble talismán tornasol y al concepto de crear discos como una experiencia. Fragmentos de álbumes, historias, curiosidades y algún que otro chisme.',
-    descripcionImg: '/assets/programas/desc/metalico-espejado.png',
-    foto:           '/assets/programas/metalico-espejado.png',
     temporada:      1,
   },
   {
@@ -206,8 +192,6 @@ export const PROGRAMAS = [
     tipo:           'residente' as const,
     tags:           [TAGS_RESIDENTES.mil919, TAGS_PROGRAMAS.notasDeVoz, TAG_TEMPORADA],
     descripcion:    'Un viaje poco lineal de notas de audio, shitposting narrado, canciones y sentimentalismo. De la imagen a la voz, contenido extraído de archivos de internet y lo que pasa a través de un móvil.',
-    descripcionImg: '/assets/programas/desc/notas-de-voz.png',
-    foto:           '/assets/programas/notas-de-voz.png',
     temporada:      1,
   },
   {
@@ -219,8 +203,6 @@ export const PROGRAMAS = [
     // Solo tag del programa — así si cambia de conductora no hay que retocar
     tags:           [TAGS_PROGRAMAS.fantasiasGraficas, TAG_TEMPORADA],
     descripcion:    'Un colectivo de amigas que fomenta el arte gráfico, el fanzine, la ilustración y la autopublicación. Con enfoque migrante, queer y experimental. Entrevistas donde cada invitadx cuenta su trabajo y la música que les inspira.',
-    descripcionImg: '/assets/programas/desc/fantasias-graficas.png',
-    foto:           '/assets/programas/fantasias-graficas.png',
     temporada:      1,
   },
   {
@@ -231,8 +213,6 @@ export const PROGRAMAS = [
     tipo:        'rotativo' as const,
     tags:        [TAGS_PROGRAMAS.unaMananaElastica, TAG_TEMPORADA],
     descripcion: 'Show libre donde cada episodio tiene unx anfitrión diferente que deleita con una hora de su selección musical para amenizar la mañana. Un espacio flexible para nuestras amigas.',
-    descripcionImg: '/assets/programas/desc/una-manana-elastica.png',
-    foto:        '/assets/programas/una-manana-elastica.png',
     temporada:   1,
   },
   {
@@ -243,8 +223,6 @@ export const PROGRAMAS = [
     tipo:        'residente' as const,
     tags:        [TAGS_RESIDENTES.isovel, TAGS_PROGRAMAS.peajeAlParaiso, TAG_TEMPORADA],
     descripcion: 'Estamos yendo, sí, ya casi llegamos. Ese lugar que nos fue prohibido tiene una puerta, yo lo sé. Soy otra pagando el precio de estar viva, cada vez más cerca de lo divino. Mezcla música con literatura, palabras que son rezos (paganos, claro).',
-    descripcionImg: '/assets/programas/desc/peaje-al-paraiso.png',
-    foto:        '/assets/programas/peaje-al-paraiso.png',
     temporada:   1,
   },
   {
@@ -255,8 +233,6 @@ export const PROGRAMAS = [
     tipo:        'residente' as const,
     tags:        [TAGS_RESIDENTES.valenMiau, TAGS_PROGRAMAS.sientoEsto, TAG_TEMPORADA],
     descripcion: 'Un recorrido por las entradas de diarios íntimos escritos durante los años de migración. De manera oracular y azarosa, se comparten algunos procesos de sensaciones vividas proponiendo a la escritura como catarsis. Entre vómitos viscerales, recuerdos y confesiones, la idea es expandir el relato junto a la música, conectándola con sus historias y sentimientos.',
-    descripcionImg: '/assets/programas/desc/siento-esto.png',
-    foto:        '/assets/programas/siento-esto.png',
     temporada:   1,
   },
   {
@@ -267,8 +243,6 @@ export const PROGRAMAS = [
     tipo:        'residente' as const,
     tags:        [TAGS_RESIDENTES.petraAshasha, TAGS_PROGRAMAS.tanteBuoneCose, TAG_TEMPORADA],
     descripcion: 'Queremos escuchar música juntis, imaginarnos escenarios. Que pase el frío, que pase el calor. Que pasen los minutos, las horas, los programas en la radio. Queremos hablar de música para no hablar de gatitos. Hablar de música para hablar del fin del mundo. Compartir una hora con alguien que no vemos. Agradecerle a la tecnología y después arrepentirnos. Desear la espera y después arrepentirnos. Elegir canciones, que sean tantas y que sean buenas y que seamos felices.',
-    descripcionImg: '/assets/programas/desc/tante-buone-cose.png',
-    foto:        '/assets/programas/tante-buone-cose.png',
     temporada:   1,
   },
   {
@@ -279,8 +253,6 @@ export const PROGRAMAS = [
     tipo:        'rotativo' as const,
     tags:        [TAGS_PROGRAMAS.unLugarLlamado, TAG_TEMPORADA],
     descripcion: 'En cada episodio, una persona invitada nos mostrará música de un lugar en específico, ya sea un país, un territorio, un paisaje o un espacio. Así, cada capítulo se transformará en un viaje sonoro por ese lugar, casi como un soundtrack ambiental de ese sitio.',
-    descripcionImg: '/assets/programas/desc/un-lugar-llamado.png',
-    foto:        '/assets/programas/un-lugar-llamado.png',
     temporada:   1,
   },
   {
@@ -291,8 +263,6 @@ export const PROGRAMAS = [
     tipo:        'residente' as const,
     tags:        [TAGS_RESIDENTES.francoD, TAGS_PROGRAMAS.sintoniaVariable, TAG_TEMPORADA],
     descripcion: "Desde Buenos Aires (Argentina) Lacura crew lleva su imaginario a la radio. Sintonía Variable es un programa para construir y compartir mundos sonoros. Comandado por Franco D' con invitados especiales en un espacio abierto de emisiones eclécticas, afectivas y experimentales. Un viaje a través de los sonidos que más atesoramos ahí donde podemos perdernos y encontrarnos.",
-    descripcionImg: '/assets/programas/desc/sintonia-variable.png',
-    foto:        '/assets/programas/sintonia-variable.png',
     temporada:   1,
   },
 ] as const

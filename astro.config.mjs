@@ -7,7 +7,9 @@ import sitemap  from '@astrojs/sitemap'
 export default defineConfig({
   site: 'https://radioelastica.com',
   output: 'hybrid',
-  adapter: netlify(),
+  // imageCDN: false → las imágenes de astro:assets se generan en el build (WebP
+  // estáticos en /_astro) en vez de transformarse bajo demanda en Netlify Image CDN.
+  adapter: netlify({ imageCDN: false }),
   integrations: [
     react(),
     tailwind({ applyBaseStyles: false }),

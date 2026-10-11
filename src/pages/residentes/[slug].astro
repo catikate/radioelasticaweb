@@ -1,6 +1,8 @@
 ---
 import Base from '@/layouts/Base.astro'
+import Foto from '@/components/Foto.astro'
 import { PROGRAMAS, toSlug } from '@/lib/constants'
+import { fotoPrograma, fotoResidente, IMG, FALLBACK_IMG } from '@/lib/images'
 import { getCloudcasts, formatDuration, formatDate } from '@/lib/mixcloud'
 
 // Generar una ruta por cada residente único
@@ -47,7 +49,7 @@ if (residenteTag) {
 }
 
 const slug = Astro.params.slug!
-const fotoResidente = `/assets/residentes/${slug}.png`
+const foto = fotoResidente(slug)
 ---
 
 <Base title={residente}>
@@ -56,11 +58,13 @@ const fotoResidente = `/assets/residentes/${slug}.png`
 
     <!-- Cabecera del residente -->
     <div class="flex justify-center mb-10">
-      <img
-        src={fotoResidente}
+      <Foto
+        src={foto}
         alt={residente}
-        class="w-64"
-        onerror="this.onerror=null;this.src='/assets/logo-square.jpg'"
+        class="w-64 h-auto"
+        widths={IMG.residente.widths}
+        sizes={IMG.residente.sizes}
+        eager
       />
     </div>
 
@@ -68,11 +72,12 @@ const fotoResidente = `/assets/residentes/${slug}.png`
     {programasConEpisodios.map(prog => (
       <div class="mb-10">
         <div class="flex items-center gap-3 mb-4">
-          <img
-            src={prog.foto}
+          <Foto
+            src={fotoPrograma(prog.slug)}
             alt={prog.programa}
             class="w-10 h-10 rounded object-cover flex-shrink-0"
-            onerror="this.onerror=null;this.src='/assets/logo-square.jpg'"
+            widths={IMG.icon.widths}
+            sizes={IMG.icon.sizes}
           />
           <h2 class="font-display italic text-xl text-white">
             ✦ {prog.programa}
@@ -92,13 +97,17 @@ const fotoResidente = `/assets/residentes/${slug}.png`
                        ep-play-btn"
                 data-key={ep.key}
                 data-title={ep.name}
-                data-cover={ep.pictures?.['320wx320h'] ?? ep.pictures?.large ?? '/assets/logo-square.jpg'}
+                data-cover={ep.pictures?.['320wx320h'] ?? ep.pictures?.large ?? FALLBACK_IMG}
                 data-duration={String(ep.audio_length)}
               >
                 <img
-                  src={ep.pictures?.['320wx320h'] ?? ep.pictures?.large ?? '/assets/logo-square.jpg'}
+                  src={ep.pictures?.['320wx320h'] ?? ep.pictures?.large ?? FALLBACK_IMG}
                   alt={ep.name}
                   class="w-12 h-12 rounded object-cover flex-shrink-0"
+                  width="48"
+                  height="48"
+                  loading="lazy"
+                  decoding="async"
                 />
                 <div class="flex-1 min-w-0">
                   <p class="text-sm text-white font-medium truncate">{ep.name}</p>
@@ -131,13 +140,17 @@ const fotoResidente = `/assets/residentes/${slug}.png`
                      ep-play-btn"
               data-key={ep.key}
               data-title={ep.name}
-              data-cover={ep.pictures?.['320wx320h'] ?? ep.pictures?.large ?? '/assets/logo-square.jpg'}
+              data-cover={ep.pictures?.['320wx320h'] ?? ep.pictures?.large ?? FALLBACK_IMG}
               data-duration={String(ep.audio_length)}
             >
               <img
-                src={ep.pictures?.['320wx320h'] ?? ep.pictures?.large ?? '/assets/logo-square.jpg'}
+                src={ep.pictures?.['320wx320h'] ?? ep.pictures?.large ?? FALLBACK_IMG}
                 alt={ep.name}
                 class="w-12 h-12 rounded object-cover flex-shrink-0"
+                width="48"
+                height="48"
+                loading="lazy"
+                decoding="async"
               />
               <div class="flex-1 min-w-0">
                 <p class="text-sm text-white font-medium truncate">{ep.name}</p>

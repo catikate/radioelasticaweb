@@ -1,6 +1,8 @@
 ---
 import Base from '@/layouts/Base.astro'
+import Foto from '@/components/Foto.astro'
 import { PROGRAMAS, toSlug } from '@/lib/constants'
+import { fotoResidente, IMG } from '@/lib/images'
 
 // Agrupar programas por residente (excluir "Varios")
 const residenteMap = new Map<string, { slug: string; residente: string; programas: string[] }>()
@@ -32,16 +34,18 @@ const rotations = ['-2deg', '1.5deg', '-1deg', '2deg', '-0.5deg']
     </h1>
 
     <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 max-w-4xl mx-auto">
-      {residentes.map((r) => (
+      {residentes.map((r, i) => (
         <a
           href={`/residentes/${r.slug}`}
           class="block hover:scale-[1.02] transition-transform w-full"
         >
-          <img
-            src={`/assets/residentes/${r.slug}.png`}
+          <Foto
+            src={fotoResidente(r.slug)}
             alt={r.residente}
-            class="w-full"
-            onerror="this.onerror=null;this.src='/assets/logo-square.jpg'"
+            class="w-full h-auto"
+            widths={IMG.grid.widths}
+            sizes={IMG.grid.sizes}
+            eager={i < 3}
           />
         </a>
       ))}

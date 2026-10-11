@@ -13,7 +13,7 @@ interface Props {
 const {
   title       = 'Radio Elástica',
   description = 'Emisora online independiente desde Barcelona. Miércoles 11:11.',
-  ogImage     = '/assets/logo-square.jpg',
+  ogImage     = '/assets/logo-square-reducido.jpg',
 } = Astro.props
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://radioelastica.com')
@@ -25,7 +25,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://radioela
  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="google-site-verification" content="vWaTl3dZboH6NjzwY1eJKFBkSrBDwfV5ci0zyY5m8d8" />
-  <link rel="icon" type="image/jpeg" href="/assets/logo-square.jpg" />
+  <link rel="icon" type="image/jpeg" href="/assets/logo-square-reducido.jpg" />
   <link rel="canonical" href={canonicalURL} />
 
   <title>{title === 'Radio Elástica' ? title : `${title} — Radio Elástica`}</title>

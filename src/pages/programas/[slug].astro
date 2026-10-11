@@ -1,6 +1,8 @@
 ---
 import Base from '@/layouts/Base.astro'
+import Foto from '@/components/Foto.astro'
 import { PROGRAMAS } from '@/lib/constants'
+import { fotoPrograma, descPrograma, IMG, FALLBACK_IMG } from '@/lib/images'
 import { getCloudcasts, formatDuration, formatDate } from '@/lib/mixcloud'
 
 export function getStaticPaths() {
@@ -11,6 +13,7 @@ export function getStaticPaths() {
 }
 
 const { programa } = Astro.props
+const descImg = descPrograma(programa.slug)
 
 // Fetch episodios usando el primer tag identificador (no temporada)
 const mainTag = programa.tags.find((t: string) => t.startsWith('programa-'))
@@ -24,20 +27,25 @@ const episodios = await getCloudcasts(undefined, { tags: mainTag, limit: 50, ord
 
     <!-- Cabecera -->
     <div class="flex flex-col items-center gap-8 mb-12">
-      <img
-        src={programa.foto}
+      <Foto
+        src={fotoPrograma(programa.slug)}
         alt={programa.programa}
-        class="w-64 sm:w-80"
-        onerror="this.onerror=null;this.src='/assets/logo-square.jpg'"
+        class="w-64 sm:w-80 h-auto"
+        widths={IMG.programa.widths}
+        sizes={IMG.programa.sizes}
+        eager
       />
-      {'descripcionImg' in programa && (
-        <img
-          src={(programa as any).descripcionImg}
+      {descImg && (
+        <Foto
+          src={descImg}
           alt={programa.descripcion}
-          class="w-full"
+          class="w-full h-auto"
+          widths={IMG.desc.widths}
+          sizes={IMG.desc.sizes}
+          eager
         />
       )}
-      {'descripcionImg' in programa === false && (
+      {!descImg && (
         <p class="text-white/50 text-2xl leading-relaxed max-w-xl mx-auto text-center" style="font-style: normal;">
           {programa.descripcion}
         </p>
@@ -62,13 +70,17 @@ const episodios = await getCloudcasts(undefined, { tags: mainTag, limit: 50, ord
                    ep-play-btn"
             data-key={ep.key}
             data-title={ep.name}
-            data-cover={ep.pictures?.['320wx320h'] ?? ep.pictures?.large ?? '/assets/logo-square.jpg'}
+            data-cover={ep.pictures?.['320wx320h'] ?? ep.pictures?.large ?? FALLBACK_IMG}
             data-duration={String(ep.audio_length)}
           >
             <img
-              src={ep.pictures?.['320wx320h'] ?? ep.pictures?.large ?? '/assets/logo-square.jpg'}
+              src={ep.pictures?.['320wx320h'] ?? ep.pictures?.large ?? FALLBACK_IMG}
               alt={ep.name}
               class="w-8 h-8 sm:w-12 sm:h-12 rounded object-cover flex-shrink-0"
+              width="48"
+              height="48"
+              loading="lazy"
+              decoding="async"
             />
             <div class="flex-1 min-w-0">
               <p class="text-xs sm:text-sm text-white font-medium truncate">{ep.name}</p>

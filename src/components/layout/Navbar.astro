@@ -1,12 +1,19 @@
 ---
-import { ASSETS } from '@/lib/constants'
+import { Image } from 'astro:assets'
+import programas  from '@/assets/nav/programas.png'
+import residentes from '@/assets/nav/residentes.png'
+import calendario from '@/assets/nav/calendario.png'
+import tienda     from '@/assets/nav/tienda.png'
 
 const links = [
-  { href: '/programas',  img: ASSETS.navButtons.programas,  alt: 'Programas'  },
-  { href: '/residentes', img: ASSETS.navButtons.residentes, alt: 'Residentes' },
-  { href: '/calendario', img: ASSETS.navButtons.calendario, alt: 'Calendario' },
-  { href: '/tienda',     img: ASSETS.navButtons.tienda,     alt: 'Tienda'     },
+  { href: '/programas',  img: programas,  alt: 'Programas'  },
+  { href: '/residentes', img: residentes, alt: 'Residentes' },
+  { href: '/calendario', img: calendario, alt: 'Calendario' },
+  { href: '/tienda',     img: tienda,     alt: 'Tienda'     },
 ]
+
+// Se muestran a 56px de alto (h-14) como máximo → 1x, 2x y 3x de ese tamaño
+const NAV_H = 56
 
 const currentPath = Astro.url.pathname
 ---
@@ -26,10 +33,13 @@ const currentPath = Astro.url.pathname
           : 'opacity-50 hover:opacity-80'
       ]}
     >
-      <img
+      <Image
         src={img}
         alt={alt}
+        width={Math.round(NAV_H * img.width / img.height)}
+        densities={[1, 2, 3]}
         class="h-9 sm:h-14 w-auto"
+        loading="eager"
       />
     </a>
   ))}

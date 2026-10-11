@@ -1,4 +1,4 @@
-import Hls from 'hls.js'
+import type Hls from 'hls.js'
 import { $liveOnAir, $liveStatus } from './store'
 
 let _audio: HTMLAudioElement | null = null
@@ -69,7 +69,14 @@ export function stopLive() {
   $liveStatus.set('idle')
 }
 
-export function toggleLive(proxyUrl: string) {
+function playNative(a: HTMLAudioElement, proxyUrl: string) {
+  a.src = proxyUrl
+  a.load()
+  pauseMixcloudWidget()
+  a.play().catch(() => $liveStatus.set('error'))
+}
+
+export async function toggleLive(proxyUrl: string) {
   const a = getAudio()
   if (!a) return
 
@@ -81,23 +88,40 @@ export function toggleLive(proxyUrl: string) {
 
   $liveStatus.set('loading')
 
-  if (Hls.isSupported()) {
+  const canNative = a.canPlayType('application/vnd.apple.mpegurl') !== ''
+
+  // Sin MediaSource hls.js no puede funcionar (p. ej. iPhone antiguo): vamos
+  // directos al HLS nativo sin descargar la librería ni perder el gesto del usuario.
+  if (canNative && !('MediaSource' in window) && !('ManagedMediaSource' in window)) {
+    playNative(a, proxyUrl)
+    return
+  }
+
+  // hls.js (~520 KB) solo se descarga al pulsar play en el directo.
+  let HlsLib: typeof Hls
+  try {
+    HlsLib = (await import('hls.js')).default
+  } catch {
+    $liveStatus.set('error')
+    return
+  }
+  // Si pulsaron stop mientras cargaba la librería, no arrancamos.
+  if ($liveStatus.get() !== 'loading') return
+
+  if (HlsLib.isSupported()) {
     _hls?.destroy()
-    _hls = new Hls({ lowLatencyMode: true })
+    _hls = new HlsLib({ lowLatencyMode: true })
     _hls.loadSource(proxyUrl)
     _hls.attachMedia(a)
-    _hls.on(Hls.Events.MANIFEST_PARSED, () => {
+    _hls.on(HlsLib.Events.MANIFEST_PARSED, () => {
       pauseMixcloudWidget()
       a.play().catch(() => $liveStatus.set('error'))
     })
-    _hls.on(Hls.Events.ERROR, (_e, data) => {
+    _hls.on(HlsLib.Events.ERROR, (_e, data) => {
       if (data.fatal) $liveStatus.set('error')
     })
-  } else if (a.canPlayType('application/vnd.apple.mpegurl')) {
-    a.src = proxyUrl
-    a.load()
-    pauseMixcloudWidget()
-    a.play().catch(() => $liveStatus.set('error'))
+  } else if (canNative) {
+    playNative(a, proxyUrl)
   } else {
     $liveStatus.set('error')
   }
