@@ -33,12 +33,14 @@
   hidden
   class="fixed z-[55] flex flex-col font-display text-white
          bg-re-player border-2 border-re-blue shadow-2xl
-         inset-x-0 bottom-[var(--player-h)] h-[60dvh]
-         max-h-[calc(100dvh-136px-var(--live-h)-var(--player-h))]
+         inset-x-0 bottom-[var(--player-h)]
+         h-[clamp(15rem,40dvh,22rem)]
+         max-h-[calc(100dvh-var(--live-h)-var(--player-h)-3rem)]
          rounded-t-2xl border-b-0
          sm:inset-x-auto sm:right-4 sm:w-[22rem] sm:border-b-2
          sm:bottom-[calc(var(--player-h)+5rem)]
-         sm:h-[30rem] sm:max-h-[calc(100dvh-136px-var(--live-h)-var(--player-h)-6rem)]
+         sm:h-[clamp(15rem,70dvh,30rem)]
+         sm:max-h-[calc(100dvh-var(--live-h)-var(--player-h)-5rem-1rem)]
          sm:rounded-lg"
 >
   <div class="sm:hidden mx-auto mt-2 h-1 w-10 rounded-full bg-white/25" aria-hidden="true"></div>
