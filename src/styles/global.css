@@ -50,3 +50,6 @@ video[aria-label="Radio Elástica"]::-webkit-media-controls-play-button {
 video[aria-label="Radio Elástica"]::-internal-media-controls-overlay-cast-button {
   display: none !important;
 }
+
+/* El atributo `hidden` debe ganar a clases de Tailwind como `flex` (el chat lo usa). */
+[hidden] { display: none !important; }

@@ -1,0 +1,19 @@
+name = "radioelastica-chat"
+main = "src/index.js"
+compatibility_date = "2025-01-01"
+
+# Opcional: servir en chat.radioelastica.com (la zona debe estar en Cloudflare).
+# Sin esto, el Worker queda en https://radioelastica-chat.<tu-subdominio>.workers.dev
+# routes = [{ pattern = "chat.radioelastica.com", custom_domain = true }]
+
+[[durable_objects.bindings]]
+name = "CHAT_ROOM"
+class_name = "ChatRoom"
+
+# new_sqlite_classes = Durable Object con almacenamiento SQLite (único tipo
+# disponible en el plan gratuito).
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["ChatRoom"]
+
+# ADMIN_TOKEN es un secret, NO va aquí:  npx wrangler secret put ADMIN_TOKEN

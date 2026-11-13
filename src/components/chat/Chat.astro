@@ -1,0 +1,268 @@
+---
+// Widget de chat comunitario. Vanilla JS, sin dependencias.
+// Posición: no toca el reproductor — el panel queda entre la navbar y la barra
+// del reproductor (usa --live-h / --player-h) y el botón flota por encima.
+---
+
+<button
+  id="chat-toggle"
+  type="button"
+  aria-label="Abrir chat"
+  aria-expanded="false"
+  aria-controls="chat-panel"
+  class="fixed z-50 left-4 sm:left-auto sm:right-4
+         bottom-[calc(var(--player-h)+1rem)]
+         w-12 h-12 sm:w-14 sm:h-14 rounded-full
+         bg-white/10 border border-white/20 backdrop-blur-sm text-white
+         flex items-center justify-center
+         hover:bg-white/20 transition-colors"
+>
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+       stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+  </svg>
+  <span id="chat-unread" hidden
+        class="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-white text-re-blue
+               text-[11px] font-bold flex items-center justify-center"></span>
+</button>
+
+<section
+  id="chat-panel"
+  role="dialog"
+  aria-label="Chat de la comunidad"
+  hidden
+  class="fixed z-[55] flex flex-col font-display text-white
+         bg-re-player border-2 border-re-blue shadow-2xl
+         inset-x-0 bottom-[var(--player-h)] h-[60dvh]
+         max-h-[calc(100dvh-136px-var(--live-h)-var(--player-h))]
+         rounded-t-2xl border-b-0
+         sm:inset-x-auto sm:right-4 sm:w-[22rem] sm:border-b-2
+         sm:bottom-[calc(var(--player-h)+5rem)]
+         sm:h-[30rem] sm:max-h-[calc(100dvh-136px-var(--live-h)-var(--player-h)-6rem)]
+         sm:rounded-lg"
+>
+  <div class="sm:hidden mx-auto mt-2 h-1 w-10 rounded-full bg-white/25" aria-hidden="true"></div>
+  <header class="flex items-center gap-2 px-3 py-2 border-b border-white/10">
+    <span id="chat-dot" class="w-2.5 h-2.5 rounded-full bg-white/30" aria-hidden="true"></span>
+    <h2 class="text-sm font-bold uppercase tracking-widest flex-1">Chat</h2>
+    <span id="chat-status" role="status" class="text-xs italic text-white/50">Desconectado</span>
+    <button id="chat-nick-change" type="button" hidden
+            class="text-xs italic underline text-white/50 hover:text-white">Cambiar apodo</button>
+    <button id="chat-close" type="button" aria-label="Cerrar chat"
+            class="text-white/60 hover:text-white text-xl leading-none px-1">×</button>
+  </header>
+
+  <form id="chat-nick-form" class="p-4 flex flex-col gap-3" hidden>
+    <label for="chat-nick-input" class="text-base italic">Elige un apodo para chatear</label>
+    <input id="chat-nick-input" type="text" minlength="2" maxlength="20" required
+           autocomplete="nickname" placeholder="2–20 caracteres"
+           class="rounded bg-white/10 border border-white/20 px-3 py-2 text-base
+                  placeholder:text-white/30 placeholder:italic focus:outline-none focus:border-white/60" />
+    <button type="submit"
+            class="rounded bg-re-blue px-3 py-2 text-xs font-bold uppercase tracking-widest
+                   hover:brightness-110">Entrar</button>
+  </form>
+
+  <div id="chat-log" role="log" aria-live="polite" aria-label="Mensajes del chat" tabindex="0"
+       class="flex-1 overflow-y-auto no-scrollbar px-3 py-2 space-y-2 text-base leading-snug"></div>
+
+  <form id="chat-form" class="flex gap-2 p-2 border-t border-white/10" hidden>
+    <label for="chat-input" class="sr-only">Escribe un mensaje</label>
+    <input id="chat-input" type="text" maxlength="300" autocomplete="off"
+           placeholder="Escribe un mensaje…"
+           class="flex-1 min-w-0 rounded bg-white/10 border border-white/20 px-3 py-2 text-base
+                  placeholder:text-white/30 placeholder:italic focus:outline-none focus:border-white/60" />
+    <button type="submit"
+            class="rounded bg-re-blue px-3 py-2 text-xs font-bold uppercase tracking-widest hover:brightness-110">Enviar</button>
+  </form>
+</section>
+
+<style is:global>
+  #chat-panel input, #chat-panel button { font-family: inherit; }
+</style>
+
+<script>
+  import { CHAT_WS_URL } from '@/lib/chatConfig'
+
+  const NICK_KEY = 're-chat-nick'
+  const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T
+
+  const toggle = $<HTMLButtonElement>('chat-toggle')
+  const panel = $('chat-panel')
+  const unread = $('chat-unread')
+  const dot = $('chat-dot')
+  const status = $('chat-status')
+  const log = $('chat-log')
+  const nickForm = $<HTMLFormElement>('chat-nick-form')
+  const nickInput = $<HTMLInputElement>('chat-nick-input')
+  const nickChange = $('chat-nick-change')
+  const form = $<HTMLFormElement>('chat-form')
+  const input = $<HTMLInputElement>('chat-input')
+
+  const read = () => { try { return localStorage.getItem(NICK_KEY) } catch { return null } }
+  const write = (v: string) => { try { localStorage.setItem(NICK_KEY, v) } catch {} }
+
+  let nick = read()
+  let ws: WebSocket | null = null
+  let idleTimer: number | undefined
+  const IDLE_MS = 3 * 60_000 // cerrado 3 min → cerramos el socket (ahorra cuota gratuita)
+  let open = false
+  let attempts = 0
+  let retryTimer: number | undefined
+  let pingTimer: number | undefined
+  let unreadCount = 0
+
+  function setStatus(kind: 'on' | 'wait' | 'off', text: string) {
+    status.textContent = text
+    dot.className = 'w-2.5 h-2.5 rounded-full ' +
+      (kind === 'on' ? 'bg-green-400' : kind === 'wait' ? 'bg-amber-400' : 'bg-red-400')
+  }
+
+  function line(text: string, cls: string) {
+    const p = document.createElement('p')
+    p.className = cls
+    p.textContent = text
+    return p
+  }
+
+  function addToLog(el: HTMLElement) {
+    const nearBottom = log.scrollHeight - log.scrollTop - log.clientHeight < 60
+    log.appendChild(el)
+    while (log.children.length > 200) log.firstElementChild?.remove()
+    if (nearBottom) log.scrollTop = log.scrollHeight
+  }
+
+  function renderMessage(m: { id: number; nick: string; text: string; ts: number }) {
+    const row = document.createElement('p')
+    row.dataset.id = String(m.id)
+    row.className = 'break-words'
+    const time = document.createElement('span')
+    time.className = 'text-white/30 text-xs italic mr-2'
+    time.textContent = new Date(m.ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    const who = document.createElement('strong')
+    who.className = 'font-bold italic ' + (m.nick.toLowerCase() === nick?.toLowerCase() ? 'text-white' : 'text-white/70')
+    who.textContent = m.nick + ': '
+    const body = document.createElement('span')
+    body.className = 'text-white/90'
+    body.textContent = m.text
+    row.append(time, who, body)
+    return row
+  }
+
+  function showUnread() {
+    unread.hidden = unreadCount === 0
+    unread.textContent = unreadCount > 9 ? '9+' : String(unreadCount)
+  }
+
+  function render() {
+    const hasNick = !!nick
+    nickForm.hidden = hasNick
+    form.hidden = !hasNick
+    log.hidden = !hasNick
+    nickChange.hidden = !hasNick
+  }
+
+  function connect() {
+    if (!nick) return
+    clearTimeout(retryTimer)
+    setStatus('wait', 'Conectando…')
+    ws = new WebSocket(CHAT_WS_URL)
+    const sock = ws
+
+    sock.onopen = () => {
+      attempts = 0
+      setStatus('on', 'Conectado')
+      sock.send(JSON.stringify({ type: 'join', nick }))
+      clearInterval(pingTimer)
+      pingTimer = window.setInterval(() => sock.readyState === 1 && sock.send('ping'), 55_000)
+    }
+
+    sock.onmessage = (e) => {
+      if (e.data === 'pong') return
+      let m: any
+      try { m = JSON.parse(e.data) } catch { return }
+      if (m.type === 'history') {
+        log.replaceChildren(...m.messages.map(renderMessage))
+        log.scrollTop = log.scrollHeight
+      } else if (m.type === 'message') {
+        addToLog(renderMessage(m))
+        if (!open) { unreadCount++; showUnread() }
+      } else if (m.type === 'delete') {
+        log.querySelector(`[data-id="${CSS.escape(String(m.id))}"]`)?.remove()
+      } else if (m.type === 'error') {
+        addToLog(line(String(m.text), 'text-amber-300/90 text-sm italic'))
+      }
+    }
+
+    sock.onclose = (e) => {
+      clearInterval(pingTimer)
+      if (sock !== ws) return // conexión reemplazada a propósito
+      if (e.code === 4003) { setStatus('off', 'Bloqueado'); return }
+      setStatus('off', 'Reconectando…')
+      // Backoff exponencial con jitter: 1s, 2s, 4s … máx. 30s
+      const delay = Math.min(30_000, 1000 * 2 ** attempts++) * (0.7 + Math.random() * 0.6)
+      retryTimer = window.setTimeout(connect, delay)
+    }
+    sock.onerror = () => sock.close()
+  }
+
+  function disconnect() {
+    clearTimeout(retryTimer)
+    clearInterval(pingTimer)
+    const s = ws
+    ws = null
+    s?.close(1000)
+    setStatus('off', 'Desconectado')
+  }
+
+  function setOpen(v: boolean) {
+    open = v
+    panel.hidden = !v
+    toggle.setAttribute('aria-expanded', String(v))
+    toggle.setAttribute('aria-label', v ? 'Cerrar chat' : 'Abrir chat')
+    if (v) {
+      unreadCount = 0; showUnread()
+      render()
+      // Conectamos solo al abrir (y reconectamos si se cerró por inactividad).
+      clearTimeout(idleTimer)
+      if (nick && !ws) connect()
+      ;(nick ? input : nickInput).focus()
+      log.scrollTop = log.scrollHeight
+    } else {
+      idleTimer = window.setTimeout(disconnect, IDLE_MS)
+      toggle.focus()
+    }
+  }
+
+  toggle.addEventListener('click', () => setOpen(!open))
+  $('chat-close').addEventListener('click', () => setOpen(false))
+  panel.addEventListener('keydown', (e) => { if (e.key === 'Escape') setOpen(false) })
+
+  nickForm.addEventListener('submit', (e) => {
+    e.preventDefault()
+    const v = nickInput.value.replace(/<[^>]*>?/g, '').replace(/\s+/g, ' ').trim()
+    if (v.length < 2 || v.length > 20) { nickInput.setCustomValidity('Entre 2 y 20 caracteres'); nickInput.reportValidity(); return }
+    nickInput.setCustomValidity('')
+    nick = v; write(v); render()
+    if (ws && ws.readyState === 1) ws.send(JSON.stringify({ type: 'join', nick }))
+    else if (!ws) connect()
+    input.focus()
+  })
+  nickInput.addEventListener('input', () => nickInput.setCustomValidity(''))
+
+  nickChange.addEventListener('click', () => {
+    nickInput.value = nick ?? ''
+    nickForm.hidden = false; form.hidden = true; nickChange.hidden = true
+    nickInput.focus()
+  })
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault()
+    const text = input.value.trim()
+    if (!text || !ws || ws.readyState !== 1) return
+    ws.send(JSON.stringify({ type: 'message', text }))
+    input.value = ''
+  })
+
+  render()
+</script>

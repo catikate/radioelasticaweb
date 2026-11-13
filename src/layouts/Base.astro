@@ -3,6 +3,7 @@ import '../styles/global.css'
 import { ViewTransitions } from 'astro:transitions'
 import Navbar     from '@/components/layout/Navbar.astro'
 import LivePlayer  from '@/components/player/LivePlayer'
+import Chat        from '@/components/chat/Chat.astro'
 
 interface Props {
   title?:       string
@@ -83,6 +84,9 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://radioela
     <path d="M12 19l-7-7 7-7"/>
   </svg>
 </a>
+
+<!-- CHAT — persiste entre navegaciones para no cortar el socket; no toca audio ni reproductor -->
+<div id="chat-root" transition:persist><Chat /></div>
 
 <!-- AUDIO EN VIVO — singleton persistente, controlado por liveAudio.ts -->
 <audio id="live-audio" transition:persist></audio>
