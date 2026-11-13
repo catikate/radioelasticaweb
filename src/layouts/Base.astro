@@ -212,6 +212,15 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? 'https://radioela
     if (!track) return
     loadTrack(track)
   })
+
+  // ViewTransitions sustituye los atributos de <html> en cada navegación y borra
+  // el inline style con --player-h, mientras #player-bar (hijo de <html>) sigue
+  // visible. Sin esto el chat, el FAB y el margen del contenido quedan tapados
+  // por el reproductor tras navegar. Mismo patrón que --live-h en LivePlayer.
+  document.addEventListener('astro:after-swap', () => {
+    const visible = getBar()?.style.display === 'flex'
+    document.documentElement.style.setProperty('--player-h', visible ? '84px' : '0px')
+  })
 </script>
 
   <!-- Swipe derecha para volver a home (móvil) + mostrar/ocultar FAB -->
