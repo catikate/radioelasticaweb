@@ -36,3 +36,17 @@
   .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 }
+
+/* Algunos navegadores móviles (Chrome/Android) dibujan un botón de play
+   sobre <video> aunque no tenga el atributo controls. El hero es decorativo
+   y siempre autoplay+muted, así que ese botón nunca debe verse. */
+video[aria-label="Radio Elástica"]::-webkit-media-controls,
+video[aria-label="Radio Elástica"]::-webkit-media-controls-start-playback-button,
+video[aria-label="Radio Elástica"]::-webkit-media-controls-play-button {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+video[aria-label="Radio Elástica"]::-internal-media-controls-overlay-cast-button {
+  display: none !important;
+}

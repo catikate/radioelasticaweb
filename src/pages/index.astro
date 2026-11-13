@@ -12,15 +12,20 @@ const episodios = await getCloudcasts(undefined, { limit: 12, order: 'latest' })
   <!-- HERO — primera pantalla -->
   <section class="flex flex-col items-center justify-center min-h-full px-6 pt-6 pb-12 text-center">
 
-    <img
-      src="/assets/GIF RADIO TRANSPARENTE.GIF"
+    <video
+      src="/assets/radio-hero.mp4"
+      poster="/assets/radio-hero-poster.jpg"
       autoplay
       muted
       loop
       playsinline
+      webkit-playsinline="true"
+      disablepictureinpicture
+      disableremoteplayback
+      preload="auto"
       aria-label="Radio Elástica"
       class="w-full max-w-[90vw] sm:max-w-[60rem] mx-auto mb-4"
-    ></img>
+    ></video>
  <img
       src="/assets/Descripción radio sin fondo.PNG"
       class="w-full max-w-[75vw] sm:max-w-[44rem] mx-auto mb-2"
@@ -108,6 +113,16 @@ const episodios = await getCloudcasts(undefined, { limit: 12, order: 'latest' })
     document.getElementById('scroll-down')?.addEventListener('click', () => {
       document.getElementById('ultimos')?.scrollIntoView({ behavior: 'smooth' })
     })
+
+    // Algunos navegadores bloquean el autoplay pese a estar muted+playsinline.
+    // Reintentamos en silencio al primer toque, sin mostrar nunca un botón de play.
+    const hero = document.querySelector<HTMLVideoElement>('video[aria-label="Radio Elástica"]')
+    if (hero && hero.paused) {
+      const tryPlay = () => hero.play().catch(() => {})
+      tryPlay()
+      document.addEventListener('touchstart', tryPlay, { once: true, passive: true })
+      document.addEventListener('pointerdown', tryPlay, { once: true })
+    }
   })
 
   // Delegación global para .ep-play-btn — se registra una sola vez por sesión.
